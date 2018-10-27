@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DockingTest1.Properties
+namespace DockingTest2.Properties
 {
 
 
