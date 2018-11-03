@@ -1,0 +1,51 @@
+﻿<Window x:Class="BindingTest1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BindingTest1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".4*"/>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height=".1*"/>
+            <RowDefinition Height=".1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="tb1" Grid.Row="0" Grid.Column="0" Text="{Binding Path=Text, ElementName=tb2, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBox x:Name="tb2" Grid.Row="0" Grid.Column="1" Text="Kétirányú"/>
+        <TextBox x:Name="tb3" Grid.Row="1" Grid.Column="0" Text="{Binding Path=Text, ElementName=tb4, Mode=OneWay}"/>
+        <TextBox x:Name="tb4" Grid.Row="1" Grid.Column="1" Text="Egyirányú"/>
+        <ListBox x:Name="lb1" Grid.Row="2" Grid.Column="0" SelectedIndex="{Binding ElementName=lb2, Path=SelectedIndex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListBoxItem Content="{Binding Path=Text, ElementName=tb1}"/>
+            <ListBoxItem>b</ListBoxItem>
+            <ListBoxItem>c</ListBoxItem>
+            <ListBoxItem>d</ListBoxItem>
+        </ListBox>
+        <ListBox x:Name="lb2" Grid.Row="2" Grid.Column="1" SelectedValue="{Binding Path=TextHidden, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListBoxItem>b</ListBoxItem>
+            <ListBoxItem>c</ListBoxItem>
+            <ListBoxItem Content="{Binding Path=Text, ElementName=tb1}"/>
+            <ListBoxItem Content="{Binding Path=TextHidden, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </ListBox>
+        <TextBox x:Name="tb5" Grid.Row="3" Grid.Column="0"/>
+        <TextBox x:Name="tb6" Grid.Row="3" Grid.Column="1"/>
+        <TextBox x:Name="tb7" Grid.Row="4" Grid.Column="0"/>
+        <TextBox x:Name="tb8" Grid.Row="4" Grid.Column="1"/>
+        <TextBox x:Name="tb9" Grid.Row="5" Grid.Column="0" Text="{Binding Path=TextHidden, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBox x:Name="tb10" Grid.Row="5" Grid.Column="1" Text="{Binding Path=TextHidden, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <Slider x:Name="sld" Grid.Row="6" Grid.Column="0" Maximum="{Binding ElementName=lb1, Path=Items.Count}" Value="{Binding ElementName=lb1, Path=SelectedIndex, Mode=TwoWay}"/>
+        <TextBox x:Name="tbn" Grid.Row="6" Grid.Column="1" Text="{Binding ElementName=lb1, Path=SelectedIndex, Mode=TwoWay}"/>
+        <CheckBox x:Name="cb" Grid.Row="7" Grid.Column="0"  IsChecked="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Path=ShowTF, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBox x:Name="tbcb" Grid.Row="7" Grid.Column="1" Text="{Binding Path=ShowTF, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+    </Grid>
+</Window>
