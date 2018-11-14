@@ -1,32 +1,82 @@
-﻿<Window
+﻿    <Window x:Class="DockingMap.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:nts="clr-namespace:NetTopologySuite.IO;assembly=NetTopologySuite.IO.GeoTools"
         xmlns:dz="http://schemas.devzest.com/presentation/docking"
-        xmlns:gmn="clr-namespace:GMap.NET.WindowsPresentation;assembly=GMap.NET.WindowsPresentation"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:DockingMap"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic" x:Class="DockingMap.MainWindow"
+        
         mc:Ignorable="d"
-        Title="Docking Test w/ Map" Height="768" Width="1024" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False">
+        Title="Docking Test w/ Map" Height="768" Width="1024" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False" SnapsToDevicePixels="True">
+    <Window.Resources>
+        <local:SolidColorBrushToColorValueConverter  x:Key="SolidColorBrushToColor_ValueConverter"/>
+    </Window.Resources>
     <Window.CommandBindings>
-        <CommandBinding Command="New" CanExecute="CommonCommandBinding_CanExecute" />
-        <CommandBinding Command="Open" CanExecute="CommonCommandBinding_CanExecute" />
+        <CommandBinding Command="New" CanExecute="CommonCommandBinding_CanExecute"/>
+        <CommandBinding Command="Open" Executed="OpenCommandBinding_Executed" CanExecute="OpenCommandBinding_CanExecute" />
         <CommandBinding Command="Save" CanExecute="CommonCommandBinding_CanExecute" />
     </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Control" Key="N" Command="New" />
+        <KeyBinding Modifiers="Control" Key="O" Command="Open" />
+        <KeyBinding Modifiers="Control" Key="S" Command="Save" />
+    </Window.InputBindings>
     <DockPanel >
         <Menu DockPanel.Dock="Top" Background="#FFEFEEF3">
             <MenuItem Header="_File">
-                <MenuItem Header="_Open"/>
-                <MenuItem Header="_Close"/>
-                <MenuItem Header="_Save"/>
+                <MenuItem Header="_New" Command="New"/>
+                <MenuItem Header="_Open" Command="Open"/>
+                <MenuItem Header="_Save" Command="Save"/>
             </MenuItem>
         </Menu>
         <ToolBarTray DockPanel.Dock="Top" Background="#FFEFEEF3">
             <ToolBar>
-                <Button Command="New" Content="New" />
-                <Button Command="Open" Content="Open" />
-                <Button Command="Save" Content="Save" />
+                <Button Command="New" ToolTip="New">
+                    <Image Width="16" Height="16">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Source" Value="Icons/document-plus.png"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                        <Setter Property="Source" Value="Icons/disabled/document-plus.png" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+                <Button Command="Open" ToolTip="Open">
+                    <Image Width="16" Height="16">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Source" Value="Icons/folder.png"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                        <Setter Property="Source" Value="Icons/disabled/folder.png" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
+                <Button Command="Save" ToolTip="Save">
+                    <Image Width="16" Height="16">
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="Source" Value="Icons/disk-black.png"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                        <Setter Property="Source" Value="Icons/disabled/disk-black.png" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </Button>
             </ToolBar>
             <ToolBar>
                 <Button Command="Cut" Content="Cut" />
@@ -65,23 +115,405 @@
                 <ProgressBar Value="50" Width="90" Height="16" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="White" />
             </StatusBarItem>
         </StatusBar>
-        <dz:DockControl LeftDockTreeWidth="300" RightDockTreeWidth="300">
-            <dz:DockItem x:Name="diAttributes" TabText="Attributes" Title="Attributes" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Right}">
+        <dz:DockControl LeftDockTreeWidth="250" RightDockTreeWidth="250">
+            
+            <dz:DockItem x:Name="diAttributes" TabText="Attributes" Title="Attributes" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Right}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <ContentControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Content="{Binding Layers.CurrentItem.Shapes}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="5"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <DataGrid x:Name="dataGrid" Grid.Row="0" Margin="-1" RowHeight="22" Background="WhiteSmoke" ColumnHeaderStyle="{DynamicResource headerStyle}" HeadersVisibility="None" ItemsSource="{Binding Attributes}" BorderBrush="{x:Null}" Padding="0" AutoGenerateColumns="False" CanUserReorderColumns="False" GridLinesVisibility="None" >
+                                    <DataGrid.Resources>
+                                        <Style x:Key="headerStyle" TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="#FFEEEEF2"/>
+                                            <Setter Property="Height" Value="22"/>
+                                            <Setter Property="Padding" Value="5,0,0,0"/>
+                                            <!--<Setter Property="Margin" Value="0"/>-->
+                                        </Style>
+                                    </DataGrid.Resources>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding FieldDescriptor.Name}" ClipboardContentBinding="{x:Null}" Header="Attribute" Width="0.5*" IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Height" Value="22"/>
+                                                    <Setter Property="Margin" Value="-1"/>
+                                                    <Setter Property="Padding" Value="5,4,5,2"/>
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Setter Property="Background" Value="WhiteSmoke"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding Value}" ClipboardContentBinding="{x:Null}" Header="Value" Width="0.5*">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Height" Value="22"/>
+                                                    <Setter Property="Margin" Value="-1"/>
+                                                    <Setter Property="Padding" Value="5,4,5,2"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                            <DataGridTextColumn.EditingElementStyle>
+                                                <Style TargetType="TextBox">
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="BorderBrush" Value="#FF007ACC"/>
+                                                </Style>
+                                            </DataGridTextColumn.EditingElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <GridSplitter Grid.Row="1" Background="#FFC2C3C9" HorizontalAlignment="Stretch"/>
+                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=dataGrid}" TextWrapping="Wrap" Padding="5">
+                                    <Bold><Run Text="{Binding Name}"/></Bold>:&#160;
+                                    <Run>
+                                        <Run.Style>
+                                            <Style TargetType="Run">
+                                                <Setter Property="Text" Value="unknown type"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DbaseType}" Value="N">
+                                                        <Setter Property="Text">
+                                                            <Setter.Value>
+                                                                <MultiBinding StringFormat="N({0}, {1})&#x0a;    Numeric data type of length {0} and {1} decimal places.">
+                                                                    <Binding Path="Length"/>
+                                                                    <Binding Path="DecimalCount"/>
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DbaseType}" Value="F">
+                                                        <Setter Property="Text">
+                                                            <Setter.Value>
+                                                                <MultiBinding StringFormat="F({0}, {1})&#x0a;    Numeric data type of length {0} and {1} decimal places.">
+                                                                    <Binding Path="Length"/>
+                                                                    <Binding Path="DecimalCount"/>
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DbaseType}" Value="C">
+                                                        <Setter Property="Text">
+                                                            <Setter.Value>
+                                                                <MultiBinding StringFormat="C({0})&#x0a;    String data type of length {0}.">
+                                                                    <Binding Path="Length"/>
+                                                                </MultiBinding>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DbaseType}" Value="D">
+                                                        <Setter Property="Text" Value="D&#x0a;    Date data type."/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DbaseType}" Value="L">
+                                                        <Setter Property="Text" Value="L&#x0a;    Logical data type."/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Run.Style>
+                                    </Run>
+                                    <TextBlock.Style>
+                                        <Style>
+                                            <Style.Setters>
+                                                <Setter Property="TextBlock.Visibility" Value="Visible"/>
+                                            </Style.Setters>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=dataGrid}" Value="{x:Null}">
+                                                    <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=dataGrid}" Value="{x:Null}">
+                                                    <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=dataGrid}" TextWrapping="Wrap" Padding="5">
+                                    <TextBlock.Style>
+                                        <Style>
+                                            <Style.Setters>
+                                                <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
+                                            </Style.Setters>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=dataGrid}" Value="{x:Null}">
+                                                    <Setter Property="TextBlock.Visibility" Value="Visible"/>
+                                                    <Setter Property="TextBlock.Text" Value="No data field selected"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=dataGrid}" Value="{x:Null}">
+                                                    <Setter Property="TextBlock.Visibility" Value="Visible"/>
+                                                    <Setter Property="TextBlock.Text" Value="No shape selected"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </dz:DockItem>
 
+            <dz:DockItem x:Name="diLayers" TabText="Layers" Title="Layers" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Left}">
+                <!--<StackPanel x:Name="layerListPanel">-->
+                    <!--<local:StretchingTreeView ItemsSource="{Binding Layers}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsLayerVisible}" Value="False">
+                                        <Setter Property="Opacity" Value="0.5" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate DataType="{x:Type local:Layer}" ItemsSource="{Binding Children}">
+                                <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" DockPanel.Dock="Left"/>
+                                    <CheckBox x:Name="cbLayerVisible" DockPanel.Dock="Right" IsChecked="{Binding IsLayerVisible}"/>
+                                </DockPanel>
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type local:ShapefileCollectionContainer}" ItemsSource="{Binding Collection}">
+                                <TextBlock Text="{Binding Name}"/>
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type nts:DbaseFieldDescriptor}">
+                                <TextBlock x:Name="Name" Text="{Binding Name}" />
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type local:ShapefileShape}">
+                                <TextBlock x:Name="Name" Text="{Binding Name}" Background="Red"/>
+                            </HierarchicalDataTemplate>
+                        </TreeView.Resources>
+                    </local:StretchingTreeView>-->
+                
+                <ListBox ItemsSource="{Binding Layers}" 
+                          HorizontalAlignment="Stretch" 
+                          HorizontalContentAlignment="Stretch" 
+                          BorderBrush="{x:Null}" 
+                          Background="Transparent"
+                          IsSynchronizedWithCurrentItem="True" 
+                          ScrollViewer.CanContentScroll="False" 
+                          ScrollViewer.VerticalScrollBarVisibility="Visible" 
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.Resources>
+                        <Style TargetType="{x:Type ListBoxItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                        <Border x:Name="Bd"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            SnapsToDevicePixels="true">
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="Selector.IsSelectionActive" Value="False" />
+                                                    <Condition Property="IsSelected" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="Background" TargetName="Bd" Value="#20CCCEDB" />
+                                            </MultiTrigger>
+                                            <MultiTrigger>
+                                                <MultiTrigger.Conditions>
+                                                    <Condition Property="Selector.IsSelectionActive" Value="True" />
+                                                    <Condition Property="IsSelected" Value="True" />
+                                                </MultiTrigger.Conditions>
+                                                <Setter Property="Background" TargetName="Bd" Value="#10007ACC" />
+                                            </MultiTrigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.Resources>
+                    <!--<ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True" >
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                    <Setter Property="Background" Value="Red" />
+                                    --><!--<Setter Property="Foreground" Value="Black" />--><!--
+                                    <Setter Property="Opacity" Value="0.3" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>-->
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid HorizontalAlignment="Stretch" Margin="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="22"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="22"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="22"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+
+                                <local:TriangleToggleButton Grid.Column="0" Grid.Row="0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Name}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                <CheckBox x:Name="cbLayerVisible" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right"  VerticalAlignment="Center" IsChecked="{Binding IsLayerVisible}"/>
+
+                                <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
+                                    <StackPanel.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=Children[0].IsChecked, RelativeSource={RelativeSource AncestorType=Grid}}" Value="False">
+                                                    <Setter Property="StackPanel.Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <Grid HorizontalAlignment="Stretch" Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="22"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <local:TriangleToggleButton Grid.Column="0" Grid.Row="0"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="0" Text="Attributes" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Grid.Row="1" >
+                                            <StackPanel.Style>
+                                                <Style>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=Children[0].IsChecked, RelativeSource={RelativeSource AncestorType=Grid}}" Value="False">
+                                                            <Setter Property="StackPanel.Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <ListBox ItemsSource="{Binding Attributes}" 
+                                                      HorizontalAlignment="Stretch" 
+                                                      HorizontalContentAlignment="Stretch" 
+                                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                                      BorderBrush="{x:Null}" 
+                                                      Background="Transparent"
+                                                      IsSynchronizedWithCurrentItem="True">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid HorizontalAlignment="Stretch" Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="22"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="22"/>
+                                            <RowDefinition Height="auto"/>
+                                        </Grid.RowDefinitions>
+                                        <local:TriangleToggleButton Grid.Column="0" Grid.Row="0"/>
+                                        <TextBlock Grid.Column="1" Grid.Row="0" Text="Shapes" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Grid.Row="1" >
+                                            <StackPanel.Style>
+                                                <Style>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=Children[0].IsChecked, RelativeSource={RelativeSource AncestorType=Grid}}" Value="False">
+                                                            <Setter Property="StackPanel.Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+                                            <ListBox ItemsSource="{Binding Shapes}" 
+                                                     HorizontalAlignment="Stretch" 
+                                                     HorizontalContentAlignment="Stretch" 
+                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                                                     BorderBrush="{x:Null}" 
+                                                      Background="Transparent"
+                                                     IsSynchronizedWithCurrentItem="True">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Name}"/>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </dz:DockItem>
-            <dz:DockItem TabText="Style" Title="Style" ShowAction="{dz:ShowAsSidePaneAction Source=1, Side=Bottom, Size=0.5*, Target=0}">
-                <TreeView  />
+
+            <dz:DockItem x:Name="diStyle" TabText="Style" Title="Style" ShowAction="{dz:ShowAsSidePaneAction Source=2, Side=Bottom, Size=0.3*, Target=1}" Background="WhiteSmoke">
+                <ContentControl Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Content="{Binding Layers}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid MaxWidth="{Binding ElementName=diStyle, Path=ActualWidth}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15" MinWidth="15"/>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!--<GridSplitter Grid.Column="1" Grid.RowSpan="100" Width="5" Margin="5" BorderBrush="#FFCCCEDB" BorderThickness="1,0,1,0" Opacity="0.5" Background="#00000000" Foreground="{x:Null}" Grid.IsSharedSizeScope="True" />-->
+                    <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Margin="5,0,0,0">Fill Color</TextBlock>
+                                <xctk:ColorPicker Grid.Row="0" Grid.Column="2" ShowRecentColors="True" ColorMode="ColorCanvas" BorderBrush="#FFCCCEDB" Height="22" Margin="0,3,5,3" 
+                                                  SelectedColor="{Binding Path=Fill, Converter={StaticResource SolidColorBrushToColor_ValueConverter}}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="5,0,0,0">Stroke Color</TextBlock>
+                                <xctk:ColorPicker Grid.Row="1" Grid.Column="2" ShowRecentColors="True" ColorMode="ColorCanvas" BorderBrush="#FFCCCEDB" Height="22" Margin="0,3,5,3" 
+                                                  SelectedColor="{Binding Path=Stroke, Converter={StaticResource SolidColorBrushToColor_ValueConverter}}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" Margin="5,0,0,0">Stroke thickness</TextBlock>
+                    <!--<TextBox Grid.Row="2" Grid.Column="2" Height="22"   BorderBrush="#FFCCCEDB"  BorderThickness="1" Margin="0,3,3,3" ></TextBox>-->
+                                <xctk:ValueRangeTextBox Grid.Row="2" Grid.Column="2" Height="22" BorderBrush="#FFCCCEDB" BorderThickness="1" Margin="0,3,5,3" AutoSelectBehavior="OnFocus" ValueDataType="{x:Type sys:Double}" VerticalContentAlignment="Center" Text="{Binding Path=StrokeThickness}"/>
+
+
+                                <!--<Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20"
+          BorderBrush="Aqua" BorderThickness="1" Padding="8">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                        <RowDefinition/>
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Path=Fill}"/>
+                                                    --><!--<TextBlock Grid.Row="1" Grid.Column="0" Text="Last Name:"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=LastName}"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Home Town:"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=HomeTown}"/>--><!--
+                                                </Grid>
+                                            </Border>-->
+                            </Grid>
+
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
             </dz:DockItem>
-            <dz:DockItem TabText="Layers" Title="Layers" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Left}">
-                <TreeView  />
-            </dz:DockItem>
-            <dz:DockItem TabText="Map" Title="Map" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
+
+            <dz:DockItem x:Name="diMap" TabText="Map" Title="Map" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
                 <Grid>
                     <local:Map x:Name="map" Zoom="15" MaxZoom="24" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
                     <local:MapSettings x:Name="mapSettings" 
                                        SelectedProvider="{Binding ElementName=map, Path=MapProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        ShowCrosshairChangedEvent="ShowCrosshairEventHandler"/>
                 </Grid>
+            </dz:DockItem>
+
+            <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}">
+                <TextBox x:Name="textBoxMessages" IsReadOnly="True" IsUndoEnabled="False" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="textBoxMessages_TextChanged" BorderBrush="{x:Null}" BorderThickness="0" Initialized="textBoxMessages_Initialized"/>
             </dz:DockItem>
         </dz:DockControl>
     </DockPanel>

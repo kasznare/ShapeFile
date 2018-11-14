@@ -67,9 +67,9 @@
                     <DataTrigger Binding="{Binding ElementName=tabStrip, Path=IsTabTrimmed}" Value="True">
                         <Setter TargetName="dropDownButton" Property="ContentTemplate" Value="{DynamicResource OverflowDropDownButtonTemplate}" />
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding ElementName=dropDownButton, Path=IsSelected}" Value="True">
+                    <!--<DataTrigger Binding="{Binding ElementName=dropDownButton, Path=IsSelected}" Value="True">
                         <Setter TargetName="dropDownButton" Property="Foreground" Value="{StaticResource ActiveDropDownForeground}"/>
-                    </DataTrigger>
+                    </DataTrigger>-->
                     <DataTrigger Binding="{Binding Path=(dz:DockManager.Preview)}" Value="Tab">
                         <Setter TargetName="border" Property="dz:DockManager.Overlay" Value="{StaticResource Overlay}" />
                     </DataTrigger>
