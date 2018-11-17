@@ -30,18 +30,18 @@
  *     (250)385-6040
  *     www.vividsolutions.com
  */
-
-#if PATH_GEOMETRY
+ 
 
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using GeoAPI.Geometries;
+using NetTopologySuite.Windows.Media;
 using WpfGeometry = System.Windows.Media.Geometry;
 using WpfPathGeometry = System.Windows.Media.PathGeometry;
 using WpfPoint = System.Windows.Point;
 
-namespace NetTopologySuite.Windows.Media
+namespace DockingMap
 {
     ///<summary>
     /// Writes <see cref="IGeometry"/>s into <see cref="WpfGeometry"/>s
@@ -293,5 +293,3 @@ namespace NetTopologySuite.Windows.Media
         //}
     }
 }
-
-#endif

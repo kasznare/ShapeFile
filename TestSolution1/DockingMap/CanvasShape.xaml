@@ -5,17 +5,71 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DockingMap"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <!--<ControlTemplate x:Key="MoveThumbTemplate" TargetType="{x:Type local:MoveThumb}">
+            <Rectangle Fill="Red"/>
+        </ControlTemplate>-->
+    </UserControl.Resources>
+    
+    <Canvas Width="256" Height="256">
     <Path 
         x:Name="path" 
-        Data="{Binding Path=DisplayGeometry}" 
-        Fill="{Binding Path=Fill, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}" 
-        Stroke="{Binding Path=Stroke, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}"
-        StrokeThickness="{Binding Path=StrokeThickness, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}"
+        Data="{Binding Path=DisplayGeometry}"
+        Fill="{Binding Path=Layer.Fill, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}" 
+        Stroke="{Binding Path=Layer.Stroke, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}"
+        StrokeThickness="{Binding Path=Layer.StrokeThickness, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}"
         StrokeMiterLimit="1" 
+        StrokeLineJoin="Miter"
         MouseLeftButtonDown="path_MouseLeftButtonDown" 
         MouseLeftButtonUp="path_MouseLeftButtonUp"
-        MouseMove="path_MouseMove"/>
+        MouseMove="path_MouseMove">
+            <!--<Path.CacheMode>
+                <BitmapCache/>
+            </Path.CacheMode>-->
+        </Path>
+        <!--<ItemsControl ItemsSource="{Binding ElementName=path, Path=Data.Figures}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas Width="256" Height="256"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <ItemsControl ItemsSource="{Binding Path=Segments}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas Width="256" Height="256"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding Path=Points}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas Width="256" Height="256"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style>
+                                            --><!--<Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}" />
+                                            <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}" />-->
+                                            <!--<Setter Property="Position" Value="{Binding DataContext}" />--><!--
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <local:MoveThumb Template="{StaticResource MoveThumbTemplate}" Width="0.01" Height="0.01" BorderBrush="{x:Null}" BorderThickness="0" Background="Red" Cursor="SizeAll"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>-->
     <!--Fill="{Binding Path=Fill, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}" 
         Stroke="{Binding Path=Stroke, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape}}"
         StrokeThickness="{Binding Path=StrokeThickness, RelativeSource={RelativeSource FindAncestor, AncestorType=local:CanvasShape, AncestorLevel=1}}"-->
+    </Canvas>
 </UserControl>

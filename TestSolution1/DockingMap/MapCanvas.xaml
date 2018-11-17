@@ -1,58 +1,129 @@
-﻿<ItemsControl x:Class="DockingMap.MapCanvas"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:DockingMap"
-             mc:Ignorable="d" Width="256" Height="256" ItemsSource="{Binding Layer.Shapes}"><!--IsHitTestVisible="False">-->
-    <ItemsControl.Resources>
-        <BooleanToVisibilityConverter x:Key="boolToVis" />
-        <local:StrokeThicknessConverter x:Key="strokeThicknessConverter"/>
-    </ItemsControl.Resources>
-    <ItemsControl.Style>
-        <Style TargetType="ItemsControl">
-            <Setter Property="Visibility" Value="{Binding Layer.IsLayerVisible, Converter={StaticResource boolToVis}, UpdateSourceTrigger=PropertyChanged}"/>
+﻿<Canvas x:Class="DockingMap.MapCanvas"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:DockingMap"
+        mc:Ignorable="d" Width="256" Height="256">
+
+    <Canvas.Resources>
+        <ControlTemplate x:Key="thumbTemplate" TargetType="Thumb">
+            <Grid>
+                <Ellipse Stroke="Black" StrokeThickness="1" Fill="Red"/>
+            </Grid>
+        </ControlTemplate>
+        <Style x:Key="thumbStyle" TargetType="Thumb">
+            <Setter Property="Template" Value="{StaticResource thumbTemplate}"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TransformGroup>
+                        <TranslateTransform X="-4" Y="-4"/>
+                    </TransformGroup>
+                </Setter.Value>
+            </Setter>
+            <EventSetter Event="DragDelta" Handler="Thumb_DragDelta"/>
         </Style>
-    </ItemsControl.Style>
-    <ItemsControl.LayoutTransform>
+    </Canvas.Resources>
+
+    <ItemsControl x:Name="layersItemsControl" Width="256" Height="256" ItemsSource="{Binding Layers}">
+        <ItemsControl.Resources>
+            <BooleanToVisibilityConverter x:Key="boolToVis" />
+            <ScaleTransform x:Key="transform"
+                        ScaleX="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}" 
+                        ScaleY="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"/>
+        </ItemsControl.Resources>
+
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <Canvas Width="256" Height="256"/>
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemContainerStyle>
+            <Style TargetType="ContentPresenter">
+                <Setter Property="Visibility" Value="{Binding IsLayerVisible, Converter={StaticResource boolToVis}, UpdateSourceTrigger=PropertyChanged}"/>
+            </Style>
+        </ItemsControl.ItemContainerStyle>
+
+        <!--<ItemsControl.LayoutTransform>
         <TransformGroup>
-            <ScaleTransform ScaleX="{Binding Map.Scale}" ScaleY="{Binding Map.Scale, UpdateSourceTrigger=PropertyChanged}"/>
+            <ScaleTransform ScaleX="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}" ScaleY="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"/>
             <SkewTransform/>
             <RotateTransform/>
             <TranslateTransform/>
         </TransformGroup>
-    </ItemsControl.LayoutTransform>
-    <!--<Ellipse Fill="#7FFFFFFF" StrokeThickness="0.01" Stroke="#FFE4E4E4" Width="1" Height="1" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False"/>-->
-    <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-        <Canvas Width="256" Height="256" >
-                <!--<Rectangle Width="64" Height="64" Fill="Red" Canvas.Top="0" Canvas.Left="0" Stroke="#FF92DCC4" StrokeThickness="{Binding Map.InverseScale}"/>
-                <Rectangle Width="64" Height="64" Fill="Cyan" Canvas.Bottom="0" Canvas.Right="0" />
-                <Rectangle Width="64" Height="64" Fill="Yellow" Canvas.Top="0" Canvas.Right="0"/>
-                <Rectangle Width="64" Height="64" Fill="LightGreen" Canvas.Bottom="0" Canvas.Left="0" />-->
-            </Canvas>
-        </ItemsPanelTemplate>
-    </ItemsControl.ItemsPanel>
-    <ItemsControl.ItemContainerStyle>
-        <Style TargetType="ContentPresenter">
-            <Setter Property="Canvas.Left" Value="0" />
-            <Setter Property="Canvas.Top" Value="0" />
-        </Style>
-    </ItemsControl.ItemContainerStyle>
-    <ItemsControl.ItemTemplate>
-        <DataTemplate>
-            <!--<TextBlock Foreground="White" Text="{Binding Path=Geometry.Area}"/>-->
-            <local:CanvasShape Geometry="{Binding Path=Geometry}"
-                               Fill="{Binding Path=Layer.Fill, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"
-                               Stroke="{Binding Path=Layer.Stroke, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"
-                               Map="{Binding Path=Map, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}">
-                <local:CanvasShape.StrokeThickness>
-                    <MultiBinding Converter="{StaticResource strokeThicknessConverter}" Mode="OneWay">
-                        <Binding Path="Layer.StrokeThickness" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}"/>
-                        <Binding Path="Map.InverseScale" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}"/>
-                    </MultiBinding>
-                </local:CanvasShape.StrokeThickness>
-            </local:CanvasShape>
-        </DataTemplate>
-    </ItemsControl.ItemTemplate>
-</ItemsControl>
+    </ItemsControl.LayoutTransform>-->
+
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <ItemsControl x:Name="shapesItemsControl" ItemsSource="{Binding Shapes}" Width="256" Height="256">
+
+                    <ItemsControl.Resources>
+                        <!--<local:ShapeItemStyleSelector x:Key="shapeItemStyleSelector"/>-->
+                        <Style x:Key="selectedStyle" TargetType="ContentPresenter">
+                            <Setter Property="Cursor" Value="SizeAll"/>
+                        </Style>
+                        <!--<local:StrokeThicknessConverter x:Key="strokeThicknessConverter"/>-->
+                        <Style x:Key="layerStyle" TargetType="local:CanvasShape">
+                            <Setter Property="Map" Value="{Binding Path=Map, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"/>
+                            <!--<Setter Property="Fill" Value="{Binding Path=DataContext.Fill, ElementName=shapesItemsControl}"/>
+                        <Setter Property="Stroke" Value="{Binding Path=DataContext.Stroke, ElementName=shapesItemsControl}"/>
+                        <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=shapesItemsControl}"/>-->
+                            <Setter Property="Layer" Value="{Binding Path=DataContext, ElementName=shapesItemsControl}"/>
+                            <!--<Setter Property="StrokeThickness">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource strokeThicknessConverter}" Mode="OneWay">
+                                    <Binding Path="DataContext.StrokeThickness" ElementName="shapesItemsControl"/>
+                                    <Binding Path="Map.InverseScale" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}" diag:PresentationTraceSources.TraceLevel="High"/>
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>-->
+                        </Style>
+                    </ItemsControl.Resources>
+
+                    <!--<ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource shapeItemStyleSelector}"/>
+                    </Style>
+                </ItemsControl.Style>-->
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="256" Height="256"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="0" />
+                            <Setter Property="Canvas.Top" Value="0" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:CanvasShape 
+                            Transform="{DynamicResource transform}" 
+                            Geometry="{Binding Path=Geometry}" 
+                            Style="{StaticResource layerStyle}" 
+                            PreviewMouseMove="CanvasShape_PreviewMouseMove" 
+                            PreviewMouseLeftButtonDown="CanvasShape_PreviewMouseLeftButtonDown" 
+                            PreviewMouseLeftButtonUp="CanvasShape_PreviewMouseLeftButtonUp"/>
+                        </DataTemplate>
+                                <!--PreviewMouseUp="CanvasShape_PreviewMouseUp" 
+                            PreviewMouseDown="CanvasShape_PreviewMouseDown"
+                            MouseMove="CanvasShape_MouseMove" 
+                            MouseLeftButtonDown="CanvasShape_MouseLeftButtonDown" 
+                            MouseLeftButtonUp="CanvasShape_MouseLeftButtonUp" 
+                            MouseUp="CanvasShape_MouseUp" 
+                            MouseDown="CanvasShape_MouseDown"/>-->
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</Canvas>

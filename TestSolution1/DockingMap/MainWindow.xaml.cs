@@ -30,16 +30,11 @@ namespace DockingMap
     /// </summary>
     public partial class MainWindow : Window
     {
+        OpenFileDialog openFileDialog;
+
+
         //MapCanvas canvas;
         public ObservableCollection<Layer> Layers { get; private set; }
-        
-        public ShapefileShape SelectedShape
-        {
-            get { return (ShapefileShape)GetValue(SelectedShapeProperty); }
-            set { SetValue(SelectedShapeProperty, value); }
-        }
-        public static readonly DependencyProperty SelectedShapeProperty =
-            DependencyProperty.Register("SelectedShape", typeof(ShapefileShape), typeof(MainWindow));
 
 
 
@@ -48,6 +43,10 @@ namespace DockingMap
             InitializeComponent();
 
             Themes.Load("VS_blue");
+            
+            openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
+            openFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
 
             List<GMapProvider> choosableMapProviders = new List<GMapProvider>();
             choosableMapProviders.Add(GMapProviders.OpenStreetMap);
@@ -62,7 +61,8 @@ namespace DockingMap
             //map.Position = new PointLatLng(47.473324, 19.0609954);
             map.Position = new PointLatLng(0, 0);
             map.ShowCenter = false;
-            map.Zoom = 18;
+            //map.Zoom = 18;
+            map.Zoom = 2;
 
             //canvas = new MapCanvas(map);
             //map.Markers.Add(new GMapMarker(map.MapProvider.Projection.Bounds.LocationTopLeft)
@@ -71,25 +71,19 @@ namespace DockingMap
             //    Offset = new System.Windows.Point(0, 0)
             //});
 
-            map.OnMapZoomChanged += Map_OnMapZoomChanged;
-            
-            //textBoxMessages.AppendText("Projection bounds: " + map.MapProvider.Projection.Bounds.ToString() + "\n");
-
             Layers = new ObservableCollection<Layer>();
 
             DataContext = this;
+
+
+            MapCanvas canvas = new MapCanvas(map);
+            canvas.Layers = Layers;
+            map.Markers.Add(canvas.Marker);
 
             this.Closed += delegate (Object o, EventArgs e) { consoleRedirectWriter.Release(); };  //sets releases console when window closes.
         }
 
         ConsoleRedirectWriter consoleRedirectWriter = new ConsoleRedirectWriter();
-
-        private void Map_OnMapZoomChanged()
-        {
-            //textBoxMessages.AppendText("Projection bounds: " + map.MapProvider.Projection.GetTileMatrixSizePixel((int)map.Zoom) + "\n");
-            //textBoxMessages.AppendText("Bottom right: " + map.MapProvider.Projection.FromPixelToTileXY(map.MapProvider.Projection.FromLatLngToPixel(map.MapProvider.Projection.Bounds.LocationRightBottom, (int)map.Zoom)).ToString() + "\n");
-            //Console.WriteLine("Bottom right: " + map.MapProvider.Projection.FromPixelToTileXY(map.MapProvider.Projection.FromLatLngToPixel(map.MapProvider.Projection.Bounds.LocationRightBottom, (int)map.Zoom)).ToString());
-        }
 
         private void ShowCrosshairEventHandler(object sender, RoutedEventArgs e)
         {
@@ -111,9 +105,6 @@ namespace DockingMap
 
         private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
-            openFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
             if (openFileDialog.ShowDialog() == true)
             {
                 try
@@ -158,10 +149,7 @@ namespace DockingMap
                             //dataReader[]
                         }
 
-                        Layers.Insert(0, layer);
-                        MapCanvas canvas = new MapCanvas(map, layer);
-                        map.Markers.Add(canvas.Marker);
-                        SelectedShape = Layers[0].Shapes[0];
+                        Layers.Add(layer);
                     }
 
                 }
@@ -198,6 +186,20 @@ namespace DockingMap
                     textBoxMessages.AppendText(value);
                     textBoxMessages.ScrollToEnd();
                 };
+        }
+
+        private void btnMoveLayerUp_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
+            if (currentPosition > 0)
+                Layers.Move(currentPosition, currentPosition - 1);
+        }
+
+        private void btnMoveLayerDown_Click(object sender, RoutedEventArgs e)
+        {
+            int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
+            if (currentPosition < Layers.Count - 1)
+                Layers.Move(currentPosition, currentPosition + 1);
         }
     }
 
@@ -265,7 +267,7 @@ namespace DockingMap
             set { SetValue(FillProperty, value); }
         }
         public static readonly DependencyProperty FillProperty =
-            DependencyProperty.Register("Fill", typeof(Brush), typeof(Layer), new PropertyMetadata(new SolidColorBrush(Colors.AliceBlue)));
+            DependencyProperty.Register("Fill", typeof(Brush), typeof(Layer), new PropertyMetadata(new SolidColorBrush(Color.FromArgb(127, 240, 248, 255))));
         
         public Brush Stroke
         {

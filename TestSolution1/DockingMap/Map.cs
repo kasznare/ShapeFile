@@ -14,6 +14,7 @@ namespace DockingMap
         {
             IgnoreMarkerOnMouseWheel = true;
             OnMapZoomChanged += Map_OnMapZoomChanged;
+            Map_OnMapZoomChanged();
         }
 
         private void Map_OnMapZoomChanged()
@@ -73,6 +74,18 @@ namespace DockingMap
         {
             get { return (double)GetValue(InverseScaleProperty); }
             private set { SetValue(InverseScaleProperty, value); }
+        }
+
+
+
+
+        protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseUp(e);
+            base.OnMouseUp(e);
+        }
+        protected override void OnMouseUp(MouseButtonEventArgs e)
+        {
         }
     }
 

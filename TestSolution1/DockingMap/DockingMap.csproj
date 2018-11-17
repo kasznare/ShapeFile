@@ -146,6 +146,7 @@
       <DependentUpon>CanvasShape.xaml</DependentUpon>
     </Compile>
     <Compile Include="GMapNTSGeometryMarker.cs" />
+    <Compile Include="GMapPathGeometryWriter.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapSettings.xaml.cs">
       <DependentUpon>MapSettings.xaml</DependentUpon>
@@ -325,6 +326,10 @@
   <ItemGroup>
     <Resource Include="Icons\disabled\disk-black.png" />
     <Resource Include="Icons\disabled\document-plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\arrow-090.png" />
+    <Resource Include="Icons\arrow-270.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets')" />

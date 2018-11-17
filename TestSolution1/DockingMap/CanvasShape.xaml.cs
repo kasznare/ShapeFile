@@ -1,6 +1,5 @@
 ﻿using GeoAPI.Geometries;
 using GMap.NET;
-using NetTopologySuite.Windows.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,27 +69,47 @@ namespace DockingMap
             cs.path.Data = cs.DisplayGeometry = cs.geoPathGeometry.Clone();
             cs.RebuildShape();
         }
-
-        public Brush Fill
+        
+        public Transform Transform
         {
-            get { return (Brush)GetValue(FillProperty); }
-            set { SetValue(FillProperty, value); }
+            get { return (Transform)GetValue(TransformProperty); }
+            set { SetValue(TransformProperty, value); }
         }
-        public static readonly DependencyProperty FillProperty = DependencyProperty.Register("Fill", typeof(Brush), typeof(CanvasShape));
+        public static readonly DependencyProperty TransformProperty = DependencyProperty.Register("Transform", typeof(Transform), typeof(CanvasShape), new PropertyMetadata(Transform.Identity, TransformPropertyChanged));
 
-        public Brush Stroke
+        private static void TransformPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            get { return (Brush)GetValue(StrokeProperty); }
-            set { SetValue(StrokeProperty, value); }
+            CanvasShape cs = ((CanvasShape)d);
+            cs.DisplayGeometry.Transform = cs.Transform;
         }
-        public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register("Stroke", typeof(Brush), typeof(CanvasShape));
 
-        public double StrokeThickness
+        public Layer Layer
         {
-            get { return (double)GetValue(StrokeThicknessProperty); }
-            set { SetValue(StrokeThicknessProperty, value); }
+            get { return (Layer)GetValue(LayerProperty); }
+            set { SetValue(LayerProperty, value); }
         }
-        public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", typeof(double), typeof(CanvasShape));
+        public static readonly DependencyProperty LayerProperty = DependencyProperty.Register("Layer", typeof(Layer), typeof(CanvasShape), new PropertyMetadata(null));
+        
+        //public Brush Fill
+        //{
+        //    get { return (Brush)GetValue(FillProperty); }
+        //    set { SetValue(FillProperty, value); }
+        //}
+        //public static readonly DependencyProperty FillProperty = DependencyProperty.Register("Fill", typeof(Brush), typeof(CanvasShape));
+
+        //public Brush Stroke
+        //{
+        //    get { return (Brush)GetValue(StrokeProperty); }
+        //    set { SetValue(StrokeProperty, value); }
+        //}
+        //public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register("Stroke", typeof(Brush), typeof(CanvasShape));
+
+        //public double StrokeThickness
+        //{
+        //    get { return (double)GetValue(StrokeThicknessProperty); }
+        //    set { SetValue(StrokeThicknessProperty, value); }
+        //}
+        //public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", typeof(double), typeof(CanvasShape));
 
 
 
@@ -132,21 +151,6 @@ namespace DockingMap
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         bool clicking = false;
         private void path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
