@@ -27,7 +27,6 @@ namespace DockingMap
         public CanvasShape()
         {
             InitializeComponent();
-            //DataContext = this;
         }
 
         public CanvasShape(Map map, IGeometry geometry)
@@ -53,7 +52,7 @@ namespace DockingMap
             get { return (Map)GetValue(MapProperty); }
             set { SetValue(MapProperty, value); }
         }
-        public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape)/*, new PropertyMetadata(null)*/);
+        public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape));
 
         public IGeometry Geometry
         {
@@ -89,27 +88,6 @@ namespace DockingMap
             set { SetValue(LayerProperty, value); }
         }
         public static readonly DependencyProperty LayerProperty = DependencyProperty.Register("Layer", typeof(Layer), typeof(CanvasShape), new PropertyMetadata(null));
-        
-        //public Brush Fill
-        //{
-        //    get { return (Brush)GetValue(FillProperty); }
-        //    set { SetValue(FillProperty, value); }
-        //}
-        //public static readonly DependencyProperty FillProperty = DependencyProperty.Register("Fill", typeof(Brush), typeof(CanvasShape));
-
-        //public Brush Stroke
-        //{
-        //    get { return (Brush)GetValue(StrokeProperty); }
-        //    set { SetValue(StrokeProperty, value); }
-        //}
-        //public static readonly DependencyProperty StrokeProperty = DependencyProperty.Register("Stroke", typeof(Brush), typeof(CanvasShape));
-
-        //public double StrokeThickness
-        //{
-        //    get { return (double)GetValue(StrokeThicknessProperty); }
-        //    set { SetValue(StrokeThicknessProperty, value); }
-        //}
-        //public static readonly DependencyProperty StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", typeof(double), typeof(CanvasShape));
 
 
 
@@ -124,12 +102,6 @@ namespace DockingMap
             double y = 128 - Math.Log((1 + sinLatitude) / (1 - sinLatitude)) * yFactor;
             return new Point(x, y);
         }
-
-        //private Point FromLatLngToCanvas(Point latLngPoint)
-        //{
-        //    GPoint gPoint = Map.MapProvider.Projection.FromLatLngToPixel(latLngPoint.X, latLngPoint.Y, 6);
-        //    return new Point(gPoint.X/16.0, gPoint.Y/16.0);
-        //}
 
         public void RebuildShape()
         {
@@ -150,27 +122,6 @@ namespace DockingMap
                     }
                 }
             }
-        }
-
-        bool clicking = false;
-        private void path_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            clicking = true;
-        }
-        private void path_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (clicking)
-            {
-                e.Handled = true;
-
-
-                //TODO: clicking handling
-            }
-            clicking = false;
-        }
-        private void path_MouseMove(object sender, MouseEventArgs e)
-        {
-            clicking = false;
         }
     }
 }

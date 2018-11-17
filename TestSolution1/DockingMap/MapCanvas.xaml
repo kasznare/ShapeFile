@@ -49,15 +49,6 @@
             </Style>
         </ItemsControl.ItemContainerStyle>
 
-        <!--<ItemsControl.LayoutTransform>
-        <TransformGroup>
-            <ScaleTransform ScaleX="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}" ScaleY="{Binding Path=Map.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"/>
-            <SkewTransform/>
-            <RotateTransform/>
-            <TranslateTransform/>
-        </TransformGroup>
-    </ItemsControl.LayoutTransform>-->
-
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <ItemsControl x:Name="shapesItemsControl" ItemsSource="{Binding Shapes}" Width="256" Height="256">
@@ -67,21 +58,9 @@
                         <Style x:Key="selectedStyle" TargetType="ContentPresenter">
                             <Setter Property="Cursor" Value="SizeAll"/>
                         </Style>
-                        <!--<local:StrokeThicknessConverter x:Key="strokeThicknessConverter"/>-->
                         <Style x:Key="layerStyle" TargetType="local:CanvasShape">
                             <Setter Property="Map" Value="{Binding Path=Map, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}}"/>
-                            <!--<Setter Property="Fill" Value="{Binding Path=DataContext.Fill, ElementName=shapesItemsControl}"/>
-                        <Setter Property="Stroke" Value="{Binding Path=DataContext.Stroke, ElementName=shapesItemsControl}"/>
-                        <Setter Property="StrokeThickness" Value="{Binding Path=DataContext.StrokeThickness, ElementName=shapesItemsControl}"/>-->
                             <Setter Property="Layer" Value="{Binding Path=DataContext, ElementName=shapesItemsControl}"/>
-                            <!--<Setter Property="StrokeThickness">
-                            <Setter.Value>
-                                <MultiBinding Converter="{StaticResource strokeThicknessConverter}" Mode="OneWay">
-                                    <Binding Path="DataContext.StrokeThickness" ElementName="shapesItemsControl"/>
-                                    <Binding Path="Map.InverseScale" RelativeSource="{RelativeSource FindAncestor, AncestorType=local:MapCanvas, AncestorLevel=1}" diag:PresentationTraceSources.TraceLevel="High"/>
-                                </MultiBinding>
-                            </Setter.Value>
-                        </Setter>-->
                         </Style>
                     </ItemsControl.Resources>
 
@@ -114,13 +93,6 @@
                             PreviewMouseLeftButtonDown="CanvasShape_PreviewMouseLeftButtonDown" 
                             PreviewMouseLeftButtonUp="CanvasShape_PreviewMouseLeftButtonUp"/>
                         </DataTemplate>
-                                <!--PreviewMouseUp="CanvasShape_PreviewMouseUp" 
-                            PreviewMouseDown="CanvasShape_PreviewMouseDown"
-                            MouseMove="CanvasShape_MouseMove" 
-                            MouseLeftButtonDown="CanvasShape_MouseLeftButtonDown" 
-                            MouseLeftButtonUp="CanvasShape_MouseLeftButtonUp" 
-                            MouseUp="CanvasShape_MouseUp" 
-                            MouseDown="CanvasShape_MouseDown"/>-->
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </DataTemplate>

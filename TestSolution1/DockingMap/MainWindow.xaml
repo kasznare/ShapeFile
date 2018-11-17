@@ -3,11 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        xmlns:nts="clr-namespace:NetTopologySuite.IO;assembly=NetTopologySuite.IO.GeoTools"
         xmlns:dz="http://schemas.devzest.com/presentation/docking"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:DockingMap"
         
         mc:Ignorable="d"
@@ -269,36 +266,6 @@
                         </ToolBar>
                     </StackPanel>
 
-                    <!--<StackPanel x:Name="layerListPanel">-->
-                    <!--<local:StretchingTreeView ItemsSource="{Binding Layers}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" BorderBrush="{x:Null}">
-                        <TreeView.ItemContainerStyle>
-                            <Style TargetType="TreeViewItem">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=IsLayerVisible}" Value="False">
-                                        <Setter Property="Opacity" Value="0.5" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TreeView.ItemContainerStyle>
-                        <TreeView.Resources>
-                            <HierarchicalDataTemplate DataType="{x:Type local:Layer}" ItemsSource="{Binding Children}">
-                                <DockPanel LastChildFill="False" HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" DockPanel.Dock="Left"/>
-                                    <CheckBox x:Name="cbLayerVisible" DockPanel.Dock="Right" IsChecked="{Binding IsLayerVisible}"/>
-                                </DockPanel>
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type local:ShapefileCollectionContainer}" ItemsSource="{Binding Collection}">
-                                <TextBlock Text="{Binding Name}"/>
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type nts:DbaseFieldDescriptor}">
-                                <TextBlock x:Name="Name" Text="{Binding Name}" />
-                            </HierarchicalDataTemplate>
-                            <HierarchicalDataTemplate DataType="{x:Type local:ShapefileShape}">
-                                <TextBlock x:Name="Name" Text="{Binding Name}" Background="Red"/>
-                            </HierarchicalDataTemplate>
-                        </TreeView.Resources>
-                    </local:StretchingTreeView>-->
-
                     <ListBox ItemsSource="{Binding Layers}" 
                           HorizontalAlignment="Stretch" 
                           HorizontalContentAlignment="Stretch" 
@@ -527,16 +494,6 @@
             <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}">
                 <TextBox x:Name="textBoxMessages" IsReadOnly="True" IsUndoEnabled="False" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="textBoxMessages_TextChanged" BorderBrush="{x:Null}" BorderThickness="0" Initialized="textBoxMessages_Initialized"/>
             </dz:DockItem>
-
-            <!--<dz:DockItem Name="diVertices" TabText="Vertices" Title="Vertices" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Right}" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                <ListBox ItemsSource="{Binding ElementName=map, Path=Markers[0].Shape.ItemContainerGenerator.Items}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Width}"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </dz:DockItem>-->
 
         </dz:DockControl>
     </DockPanel>

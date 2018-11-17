@@ -30,9 +30,11 @@ namespace DockingMap
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static PointLatLng BMECoordinates = new PointLatLng(47.473324, 19.0609954);
+        
         OpenFileDialog openFileDialog;
-
-
+        SaveFileDialog saveFileDialog;
+        
         //MapCanvas canvas;
         public ObservableCollection<Layer> Layers { get; private set; }
 
@@ -48,6 +50,10 @@ namespace DockingMap
             openFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
             openFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
 
+            saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
+            saveFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
+
             List<GMapProvider> choosableMapProviders = new List<GMapProvider>();
             choosableMapProviders.Add(GMapProviders.OpenStreetMap);
             choosableMapProviders.Add(GMapProviders.GoogleMap);
@@ -58,29 +64,21 @@ namespace DockingMap
 
             map.EmptyMapBackground = new SolidColorBrush(Colors.Black);
             map.DragButton = MouseButton.Left;
-            //map.Position = new PointLatLng(47.473324, 19.0609954);
+            //map.Position = BMECoordinates;
             map.Position = new PointLatLng(0, 0);
             map.ShowCenter = false;
             //map.Zoom = 18;
             map.Zoom = 2;
 
-            //canvas = new MapCanvas(map);
-            //map.Markers.Add(new GMapMarker(map.MapProvider.Projection.Bounds.LocationTopLeft)
-            //{
-            //    Shape = canvas,
-            //    Offset = new System.Windows.Point(0, 0)
-            //});
-
             Layers = new ObservableCollection<Layer>();
 
             DataContext = this;
-
-
+            
             MapCanvas canvas = new MapCanvas(map);
             canvas.Layers = Layers;
             map.Markers.Add(canvas.Marker);
 
-            this.Closed += delegate (Object o, EventArgs e) { consoleRedirectWriter.Release(); };  //sets releases console when window closes.
+            Closed += delegate (object o, EventArgs e) { consoleRedirectWriter.Release(); };  //sets releases console when window closes.
         }
 
         ConsoleRedirectWriter consoleRedirectWriter = new ConsoleRedirectWriter();
@@ -110,48 +108,21 @@ namespace DockingMap
                 try
                 {
                     Layer layer = new Layer(openFileDialog.SafeFileName);
-
-                    //ShapefileReader reader = new ShapefileReader(openFileDialog.FileName);
-                    //GMapPathGeometryWriter wpfPathGeometryWriter = new GMapPathGeometryWriter();
-                    //foreach (IGeometry geom in reader)
-                    //{
-                    //    GMapNTSGeometryMarker poly = new GMapNTSGeometryMarker(wpfPathGeometryWriter.ToShape(geom) as PathGeometry);
-                    //    map.Markers.Add(poly);
-                    //    map.RegenerateShape(poly);
-                    //}
-
                     using (var dataReader = new ShapefileDataReader(openFileDialog.FileName, new GeometryFactory()))
                     {
                         layer.SetDbaseHeader(dataReader.DbaseHeader);
-                        //foreach (var entry in dataReader)
-                        //{
-                        //    Console.WriteLine(entry);
-                        //    //Console.WriteLine(entry.ColumnValues[2]);
-                        //}
                         int length = dataReader.DbaseHeader.NumFields;
                         while (dataReader.Read())
                         {
-                            //GMapNTSGeometryMarker marker = new GMapNTSGeometryMarker(dataReader.Geometry);
-                            //map.Markers.Add(marker);
-
-                            //CanvasShape canvasShape = new CanvasShape(map, dataReader.Geometry);
-                            //canvasShape.Fill = new SolidColorBrush(Colors.Red);
-                            //canvas.Children.Add(canvasShape);
-
                             ShapefileShape shape = new ShapefileShape("shape", dataReader.Geometry);
                             for (int i = 0; i < length; i++)
                             {
                                 shape.Attributes.Add(new ShapefileAttributeEntry(layer.Attributes[i], dataReader.GetValue(i + 1)));
                             }
-
-
                             layer.Shapes.Add(shape);
-                            //dataReader[]
                         }
-
                         Layers.Add(layer);
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -211,8 +182,7 @@ namespace DockingMap
             Attributes = new ObservableCollection<DbaseFieldDescriptor>();
             Shapes = new ObservableCollection<ShapefileShape>();
         }
-
-
+        
 
         public string Name
         {
@@ -246,18 +216,6 @@ namespace DockingMap
             for (int i = 0; i < dbaseHeader.NumFields; i++)
             {
                 Attributes.Add(dbaseHeader.Fields[i]);
-            }
-        }
-
-        public IList Children
-        {
-            get
-            {
-                return new[]
-                {
-                    new ShapefileCollectionContainer("Attributes", Attributes ),
-                    new ShapefileCollectionContainer("Shapes", Shapes )
-                };
             }
         }
         
@@ -296,19 +254,6 @@ namespace DockingMap
 
         public string Name { get; private set; }
     }
-
-    //public class ShapefileAttributeKey
-    //{
-    //    private DbaseFieldDescriptor dbaseFieldDescriptor;
-
-    //    public ShapefileAttributeKey(DbaseFieldDescriptor dbaseFieldDescriptor)
-    //    {
-    //        this.dbaseFieldDescriptor = dbaseFieldDescriptor;
-    //        Name = dbaseFieldDescriptor.Name;
-    //    }
-
-    //    public string Name { get; private set; }
-    //}
 
     public class ShapefileShape
     {
