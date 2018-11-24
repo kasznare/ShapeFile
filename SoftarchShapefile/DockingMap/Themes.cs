@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     public static class Themes
     {

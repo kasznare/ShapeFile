@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     /// <summary>
     /// Interaction logic for ScalingMarker.xaml

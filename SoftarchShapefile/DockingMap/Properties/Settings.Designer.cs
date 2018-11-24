@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DockingMap.Properties
+namespace ShapefileEditor.Properties
 {
 
 

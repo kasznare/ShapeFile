@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     public class RedirectWriter : StringWriter
     {

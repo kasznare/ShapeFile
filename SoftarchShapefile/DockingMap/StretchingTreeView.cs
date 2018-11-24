@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     class StretchingTreeView : TreeView
     {

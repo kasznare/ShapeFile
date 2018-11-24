@@ -8,7 +8,7 @@ using GMap.NET;
 using GMap.NET.WindowsPresentation;
 using NetTopologySuite.Windows.Media;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     class GMapNTSGeometryMarker : GMapMarker, IShapable
     {

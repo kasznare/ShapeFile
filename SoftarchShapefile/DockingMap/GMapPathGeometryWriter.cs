@@ -41,7 +41,7 @@ using WpfGeometry = System.Windows.Media.Geometry;
 using WpfPathGeometry = System.Windows.Media.PathGeometry;
 using WpfPoint = System.Windows.Point;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     ///<summary>
     /// Writes <see cref="IGeometry"/>s into <see cref="WpfGeometry"/>s

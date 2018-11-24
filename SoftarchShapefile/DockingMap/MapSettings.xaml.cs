@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     /// <summary>
     /// Interaction logic for MapSettings.xaml

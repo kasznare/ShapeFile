@@ -19,11 +19,12 @@ using GMap.NET;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsPresentation;
 using Microsoft.Win32;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using NetTopologySuite.Windows.Media;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -131,6 +132,68 @@ namespace DockingMap
             }
         }
 
+        private void SaveCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = CollectionViewSource.GetDefaultView(Layers)?.CurrentItem != null;
+        }
+
+        private void SaveCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string name = saveFileDialog.FileName;
+                try
+                {
+                    Layer layertosave = CollectionViewSource.GetDefaultView(Layers).CurrentItem as Layer;
+                    List<Feature> features = new List<Feature>();
+
+                    foreach (ShapefileShape item in layertosave.Shapes)
+                    {
+                        Dictionary<string, object> dictionary = new Dictionary<string, object>();
+                        foreach (ShapefileAttributeEntry items in item.Attributes)
+                        {
+                            dictionary.Add(items.FieldDescriptor.Name, items.Value);
+                        }
+                        features.Add(new Feature(item.Geometry, new AttributesTable(dictionary)));
+                    }
+
+                    string baseFileName = name;
+
+                    //string shpFilePath = baseFileName + ".shp";string dbfFilePath = baseFileName + ".dbf";string shxFilePath = baseFileName + ".shx";
+                    //var reg = new ShapefileStreamProviderRegistry(shapeStream: new FileStreamProvider(StreamTypes.Shape, shpFilePath),dataStream: new FileStreamProvider(StreamTypes.Data, dbfFilePath),
+                    //    indexStream: new FileStreamProvider(StreamTypes.Index, shxFilePath),validateShapeProvider: true,validateDataProvider: true,validateIndexProvider: true);
+                    //ShapefileDataWriter wr = new ShapefileDataWriter(reg, GeometryFactory.Default, CodePagesEncodingProvider.Instance.GetEncoding(1252));
+                    ShapefileDataWriter wr = new ShapefileDataWriter(baseFileName, GeometryFactory.Default);
+                    wr.Header = layertosave.GetDbaseFileHeader();
+                    wr.Write(features);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        private void DeleteCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            if ((string)e.Parameter == "layer")
+            {
+                e.CanExecute = CollectionViewSource.GetDefaultView(Layers).CurrentItem != null;
+            }
+        }
+
+        private void DeleteCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            if ((string)e.Parameter == "layer")
+            {
+                MessageBoxResult dialogResult = MessageBox.Show("Are you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (dialogResult == MessageBoxResult.Yes)
+                {
+                    Layers.Remove((Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem);
+                }
+            }
+        }
+
         #endregion Commands
 
         private void textBoxMessages_TextChanged(object sender, TextChangedEventArgs e)
@@ -172,7 +235,20 @@ namespace DockingMap
             if (currentPosition < Layers.Count - 1)
                 Layers.Move(currentPosition, currentPosition + 1);
         }
+
+        private void btnDeleteLayer_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult dialogResult = MessageBox.Show("Do you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (dialogResult == MessageBoxResult.Yes)
+            {
+                Layers.Remove((Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem);
+            }
+        }
     }
+
+
+
+
 
     public class Layer : DependencyObject
     {
@@ -210,6 +286,11 @@ namespace DockingMap
         public ObservableCollection<ShapefileShape> Shapes { get; private set; }
 
         private DbaseFileHeader dbaseHeader;
+        public DbaseFileHeader DbaseHeader { get; }
+        public DbaseFileHeader GetDbaseFileHeader()
+        {
+            return dbaseHeader;
+        }
         public void SetDbaseHeader(DbaseFileHeader dbaseFileHeader)
         {
             dbaseHeader = dbaseFileHeader;
@@ -244,6 +325,10 @@ namespace DockingMap
             DependencyProperty.Register("StrokeThickness", typeof(double), typeof(Layer), new PropertyMetadata(2.0));
     }
 
+
+
+
+
     public class ShapefileCollectionContainer : CollectionContainer
     {
         public ShapefileCollectionContainer(string name, IEnumerable coll)
@@ -254,6 +339,10 @@ namespace DockingMap
 
         public string Name { get; private set; }
     }
+
+
+
+
 
     public class ShapefileShape
     {
@@ -266,9 +355,12 @@ namespace DockingMap
 
         public string Name { get; private set; }
         public IGeometry Geometry { get; private set; }
-
         public ObservableCollection<ShapefileAttributeEntry> Attributes { get; private set; }
     }
+
+
+
+
 
     public class ShapefileAttributeEntry
     {

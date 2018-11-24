@@ -1,4 +1,4 @@
-﻿namespace DockingMap
+﻿namespace ShapefileEditor
 {
     /// <summary>
     /// Interaction logic for TriangleToggleButton.xaml

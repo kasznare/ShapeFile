@@ -6,7 +6,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     public class Map : GMapControl
     {

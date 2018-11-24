@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockingTest2", "DockingTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapTest1", "MapTest1\MapTest1.csproj", "{8B70E901-B9B2-460D-96DF-1875EBB54E90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockingMap", "DockingMap\DockingMap.csproj", "{77C24D29-8A71-470A-BBCA-9897EFE2EA72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShapefileEditor", "DockingMap\ShapefileEditor.csproj", "{77C24D29-8A71-470A-BBCA-9897EFE2EA72}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BindingTest1", "BindingTest1\BindingTest1.csproj", "{48207AE3-4C9E-4352-A65F-AEFD70C5E02E}"
 EndProject

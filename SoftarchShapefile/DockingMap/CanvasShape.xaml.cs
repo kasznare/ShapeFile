@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     /// <summary>
     /// Interaction logic for CanvasShape.xaml

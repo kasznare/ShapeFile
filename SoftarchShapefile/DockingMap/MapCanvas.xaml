@@ -1,32 +1,81 @@
-﻿<Canvas x:Class="DockingMap.MapCanvas"
+﻿<Canvas x:Class="ShapefileEditor.MapCanvas"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        xmlns:local="clr-namespace:DockingMap"
+        xmlns:local="clr-namespace:ShapefileEditor"
         mc:Ignorable="d" Width="256" Height="256">
 
     <Canvas.Resources>
-        <ControlTemplate x:Key="thumbTemplate" TargetType="Thumb">
-            <Grid>
-                <Ellipse Stroke="Black" StrokeThickness="1" Fill="Red"/>
-            </Grid>
-        </ControlTemplate>
-        <Style x:Key="thumbStyle" TargetType="Thumb">
-            <Setter Property="Template" Value="{StaticResource thumbTemplate}"/>
-            <Setter Property="Width" Value="8"/>
-            <Setter Property="Height" Value="8"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <TransformGroup>
-                        <TranslateTransform X="-4" Y="-4"/>
-                    </TransformGroup>
-                </Setter.Value>
-            </Setter>
-            <EventSetter Event="DragDelta" Handler="Thumb_DragDelta"/>
-        </Style>
+        <ResourceDictionary>
+            <Style  TargetType="{x:Type local:MoveThumb}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Ellipse Stroke="Black" StrokeThickness="1" Fill="Red"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Panel.ZIndex" Value="1"/>
+                <Setter Property="Width" Value="8"/>
+                <Setter Property="Height" Value="8"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <TransformGroup>
+                            <TranslateTransform X="-4" Y="-4"/>
+                        </TransformGroup>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style  TargetType="{x:Type local:InsertThumb}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <Ellipse Stroke="{x:Null}" Fill="#00000000"/>
+                                <Ellipse Stroke="Black" StrokeThickness="1" Fill="Black" Width="10" Height="10"/>
+                                <Rectangle Stroke="{x:Null}" Fill="#FF7ACC00" Width="6" Height="2"/>
+                                <Rectangle Stroke="{x:Null}" Fill="#FF7ACC00" Width="2" Height="6"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Opacity" Value="0"/>
+                <Setter Property="Width" Value="30"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <TransformGroup>
+                            <TranslateTransform X="-15" Y="-15"/>
+                        </TransformGroup>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.100" Storyboard.TargetProperty="Opacity" To="1" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Duration="0:0:0.400" Storyboard.TargetProperty="Opacity" To="0" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+            </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
     </Canvas.Resources>
 
     <ItemsControl x:Name="layersItemsControl" Width="256" Height="256" ItemsSource="{Binding Layers}">

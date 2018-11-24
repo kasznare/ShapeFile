@@ -1,7 +1,7 @@
-﻿<Application x:Class="DockingMap.App"
+﻿<Application x:Class="ShapefileEditor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:DockingMap"
+             xmlns:local="clr-namespace:ShapefileEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
     </Application.Resources>

@@ -1,6 +1,6 @@
 ﻿using GMap.NET;
 
-namespace DockingMap
+namespace ShapefileEditor
 {
     class PointLatLngFormatter
     {

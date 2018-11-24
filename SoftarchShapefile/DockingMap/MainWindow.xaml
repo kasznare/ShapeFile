@@ -1,14 +1,14 @@
-﻿<Window x:Class="DockingMap.MainWindow"
+﻿<Window x:Class="ShapefileEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dz="http://schemas.devzest.com/presentation/docking"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-        xmlns:local="clr-namespace:DockingMap"
+        xmlns:local="clr-namespace:ShapefileEditor"
         
         mc:Ignorable="d"
-        Title="Docking Test w/ Map" Height="768" Width="1024" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False" SnapsToDevicePixels="True">
+        Title="Shapefile Editor" Height="768" Width="1024" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False" SnapsToDevicePixels="True">
     <Window.Resources>
         <local:SolidColorBrushToColorValueConverter  x:Key="SolidColorBrushToColor_ValueConverter"/>
     </Window.Resources>
@@ -16,7 +16,8 @@
     <Window.CommandBindings>
         <CommandBinding Command="New" CanExecute="CommonCommandBinding_CanExecute"/>
         <CommandBinding Command="Open" Executed="OpenCommandBinding_Executed" CanExecute="OpenCommandBinding_CanExecute" />
-        <CommandBinding Command="Save" CanExecute="CommonCommandBinding_CanExecute" />
+        <CommandBinding Command="Save" Executed="SaveCommandBinding_Executed" CanExecute="SaveCommandBinding_CanExecute" />
+        <CommandBinding Command="Delete" Executed="DeleteCommandBinding_Executed" CanExecute="DeleteCommandBinding_CanExecute" />
     </Window.CommandBindings>
 
     <Window.InputBindings>
@@ -262,6 +263,20 @@
                             </Button>
                             <Button x:Name="btnMoveLayerDown" ToolTip="Move layer down." Click="btnMoveLayerDown_Click">
                                 <Image Source="Icons/arrow-270.png"/>
+                            </Button>
+                            <Button x:Name="btnDeleteLayer" ToolTip="Move layer down." Command="Delete" CommandParameter="layer">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/cross.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/cross.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                             </Button>
                         </ToolBar>
                     </StackPanel>
