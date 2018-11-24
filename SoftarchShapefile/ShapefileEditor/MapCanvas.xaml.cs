@@ -67,6 +67,24 @@ namespace ShapefileEditor
         #endregion Properties
 
 
+        private List<CanvasShape> selectedShapes = new List<CanvasShape>();
+
+        public void CommitAll()
+        {
+            foreach (CanvasShape cs in selectedShapes)
+            {
+                cs.CommitChanges();
+            }
+        }
+
+        private void Deselect()
+        {
+            CommitAll();
+            RemoveThumbs();
+            selectedShapes.Clear();
+        }
+
+
         #region Mouse handling
 
         bool leftClicking = false;
@@ -81,7 +99,7 @@ namespace ShapefileEditor
         private void Map_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (leftClicking && !leftClickingOnShape)
-                RemoveThumbs();
+                Deselect();
 
             leftClicking = false;
         }
@@ -104,7 +122,8 @@ namespace ShapefileEditor
                 CollectionViewSource.GetDefaultView(Layers).MoveCurrentTo(canvasShape.Layer);
                 CollectionViewSource.GetDefaultView(canvasShape.Layer.Shapes).MoveCurrentTo(canvasShape.DataContext);
 
-                RemoveThumbs();
+                Deselect();
+                selectedShapes.Add(canvasShape);
                 PlaceThumbs(canvasShape.DisplayGeometry);
             }
             leftClickingOnShape = false;
@@ -122,7 +141,7 @@ namespace ShapefileEditor
 
         private void MapCanvas_CurrentChanged(object sender, EventArgs e)
         {
-            RemoveThumbs();
+            Deselect();
         }
 
         #endregion Mouse handling

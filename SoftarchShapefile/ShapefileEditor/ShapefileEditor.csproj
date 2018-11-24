@@ -145,7 +145,6 @@
     <Compile Include="CanvasShape.xaml.cs">
       <DependentUpon>CanvasShape.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GMapNTSGeometryMarker.cs" />
     <Compile Include="GMapPathGeometryWriter.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapSettings.xaml.cs">
@@ -164,6 +163,7 @@
     <Compile Include="TriangleToggleButton.xaml.cs">
       <DependentUpon>TriangleToggleButton.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GMapGeometryReader.cs" />
     <Page Include="CanvasShape.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

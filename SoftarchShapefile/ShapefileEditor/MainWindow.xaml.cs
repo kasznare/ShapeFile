@@ -36,7 +36,7 @@ namespace ShapefileEditor
         OpenFileDialog openFileDialog;
         SaveFileDialog saveFileDialog;
         
-        //MapCanvas canvas;
+        MapCanvas mapCanvas;
         public ObservableCollection<Layer> Layers { get; private set; }
 
 
@@ -75,9 +75,9 @@ namespace ShapefileEditor
 
             DataContext = this;
             
-            MapCanvas canvas = new MapCanvas(map);
-            canvas.Layers = Layers;
-            map.Markers.Add(canvas.Marker);
+            mapCanvas = new MapCanvas(map);
+            mapCanvas.Layers = Layers;
+            map.Markers.Add(mapCanvas.Marker);
 
             Closed += delegate (object o, EventArgs e) { consoleRedirectWriter.Release(); };  //sets releases console when window closes.
         }
@@ -144,10 +144,12 @@ namespace ShapefileEditor
                 string name = saveFileDialog.FileName;
                 try
                 {
-                    Layer layertosave = CollectionViewSource.GetDefaultView(Layers).CurrentItem as Layer;
+                    mapCanvas.CommitAll();
+
+                    Layer layerToSave = CollectionViewSource.GetDefaultView(Layers).CurrentItem as Layer;
                     List<Feature> features = new List<Feature>();
 
-                    foreach (ShapefileShape item in layertosave.Shapes)
+                    foreach (ShapefileShape item in layerToSave.Shapes)
                     {
                         Dictionary<string, object> dictionary = new Dictionary<string, object>();
                         foreach (ShapefileAttributeEntry items in item.Attributes)
@@ -164,7 +166,7 @@ namespace ShapefileEditor
                     //    indexStream: new FileStreamProvider(StreamTypes.Index, shxFilePath),validateShapeProvider: true,validateDataProvider: true,validateIndexProvider: true);
                     //ShapefileDataWriter wr = new ShapefileDataWriter(reg, GeometryFactory.Default, CodePagesEncodingProvider.Instance.GetEncoding(1252));
                     ShapefileDataWriter wr = new ShapefileDataWriter(baseFileName, GeometryFactory.Default);
-                    wr.Header = layertosave.GetDbaseFileHeader();
+                    wr.Header = layerToSave.GetDbaseFileHeader();
                     wr.Write(features);
                 }
                 catch (Exception ex)
@@ -344,7 +346,7 @@ namespace ShapefileEditor
 
 
 
-    public class ShapefileShape
+    public class ShapefileShape : DependencyObject
     {
         public ShapefileShape(string name, IGeometry geometry)
         {
@@ -354,7 +356,14 @@ namespace ShapefileEditor
         }
 
         public string Name { get; private set; }
-        public IGeometry Geometry { get; private set; }
+
+        public IGeometry Geometry
+        {
+            get { return (IGeometry)GetValue(GeometryProperty); }
+            set { SetValue(GeometryProperty, value); }
+        }
+        public static readonly DependencyProperty GeometryProperty = DependencyProperty.Register("Geometry", typeof(IGeometry), typeof(ShapefileShape), new PropertyMetadata(null));
+        
         public ObservableCollection<ShapefileAttributeEntry> Attributes { get; private set; }
     }
 

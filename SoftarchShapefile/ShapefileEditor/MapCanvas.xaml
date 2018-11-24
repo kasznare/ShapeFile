@@ -136,7 +136,7 @@
                         <DataTemplate>
                             <local:CanvasShape 
                             Transform="{DynamicResource transform}" 
-                            Geometry="{Binding Path=Geometry}" 
+                            Geometry="{Binding Path=Geometry, Mode=TwoWay}" 
                             Style="{StaticResource layerStyle}" 
                             PreviewMouseMove="CanvasShape_PreviewMouseMove" 
                             PreviewMouseLeftButtonDown="CanvasShape_PreviewMouseLeftButtonDown" 

@@ -23,6 +23,7 @@ namespace ShapefileEditor
     public partial class CanvasShape : UserControl
     {
         private static GMapPathGeometryWriter pathGeometryWriter = new GMapPathGeometryWriter();
+        private static GMapGeometryReader geometryReader = new GMapGeometryReader(new NetTopologySuite.Geometries.GeometryFactory());
 
         public CanvasShape()
         {
@@ -54,6 +55,8 @@ namespace ShapefileEditor
         }
         public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape));
 
+        private bool isCommiting = false;
+
         public IGeometry Geometry
         {
             get { return (IGeometry)GetValue(GeometryProperty); }
@@ -64,9 +67,12 @@ namespace ShapefileEditor
         private static void GeometryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CanvasShape cs = ((CanvasShape)d);
-            cs.geoPathGeometry = pathGeometryWriter.ToShape(e.NewValue as IGeometry) as PathGeometry;
-            cs.path.Data = cs.DisplayGeometry = cs.geoPathGeometry.Clone();
-            cs.RebuildShape();
+            if (!cs.isCommiting)
+            {
+                cs.geoPathGeometry = pathGeometryWriter.ToShape(e.NewValue as IGeometry) as PathGeometry;
+                cs.path.Data = cs.DisplayGeometry = cs.geoPathGeometry.Clone();
+                cs.RebuildShape();
+            }
         }
         
         public Transform Transform
@@ -95,12 +101,23 @@ namespace ShapefileEditor
         private static double inv4PI = 0.25 / Math.PI;
         private static double xFactor = 256.0 / 360.0;
         private static double yFactor = 256.0 * inv4PI;
-        private Point FromLatLngToCanvasMercator(Point latLngPoint)
+        private static Point FromLatLngToCanvasMercator(Point latLngPoint)
         {
             double x = (latLngPoint.Y + 180.0) * xFactor;
             double sinLatitude = Math.Sin(latLngPoint.X * deg2Rad);
-            double y = 128 - Math.Log((1 + sinLatitude) / (1 - sinLatitude)) * yFactor;
+            double y = 128.0 - Math.Log((1 + sinLatitude) / (1 - sinLatitude)) * yFactor;
             return new Point(x, y);
+        }
+
+        private static double invXFactor = 1.0 / xFactor;
+        private static double invYFactor = 0.5 / yFactor;
+        private static double rad2DegTimes2 = 360.0 / Math.PI;
+        private static double piOver4 = Math.PI * 0.25;
+        private static Point FromCanvasMercatorToLatLng(Point canvasMercator)
+        {
+            return new Point(
+                (Math.Atan(Math.Exp((128.0 - canvasMercator.Y) * invYFactor)) - piOver4) * rad2DegTimes2, 
+                canvasMercator.X * invXFactor - 180.0);
         }
 
         public void RebuildShape()
@@ -122,6 +139,31 @@ namespace ShapefileEditor
                     }
                 }
             }
+        }
+
+        public void CommitChanges()
+        {
+            isCommiting = true;
+            geoPathGeometry = DisplayGeometry.Clone();
+            for (int f = 0; f < DisplayGeometry.Figures.Count; f++)
+            {
+                PathFigure figureGeo = geoPathGeometry.Figures[f];
+                PathFigure figureDisplay = DisplayGeometry.Figures[f];
+                figureGeo.StartPoint = FromCanvasMercatorToLatLng(figureDisplay.StartPoint);
+                PathSegmentCollection segmentsGeo = figureGeo.Segments;
+                PathSegmentCollection segmentsDisplay = figureDisplay.Segments;
+                for (int s = 0; s < segmentsDisplay.Count; s++)
+                {
+                    PointCollection pointsGeo = (segmentsGeo[s] as PolyLineSegment).Points;
+                    PointCollection pointsDisplay = (segmentsDisplay[s] as PolyLineSegment).Points;
+                    for (int p = 0; p < pointsDisplay.Count; p++)
+                    {
+                        pointsGeo[p] = FromCanvasMercatorToLatLng(pointsDisplay[p]);
+                    }
+                }
+            }
+            Geometry = geometryReader.Read(geoPathGeometry);
+            isCommiting = false;
         }
     }
 }
