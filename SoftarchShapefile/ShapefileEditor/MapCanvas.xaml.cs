@@ -235,33 +235,6 @@ namespace ShapefileEditor
     }
 
 
-    /// <summary>
-    /// Tag class for polygon edit thumbs
-    /// </summary>
-    public class ThumbTag
-    {
-        public List<Thumb> ThumbList { get; set; }
-        public Thumb PrevThumb { get; set; }
-        public Thumb PrevInsertThumb { get; set; }
-        public Thumb NextInsertThumb { get; set; }
-        public Thumb NextThumb { get; set; }
-
-        public PathFigure Figure { get; set; }
-        //public bool IsStartPoint { get; set; }
-        public double Scale { get; set; }
-    }
-
-    /// <summary>
-    /// Tag class for polygon edit thumbs
-    /// </summary>
-    public class InsertThumbTag
-    {
-        public PathFigure Figure { get; set; }
-        public double Scale { get; set; }
-        public Thumb PrevThumb { get; set; }
-        public Thumb NextThumb { get; set; }
-    }
-
     public class MoveThumb : Thumb
     {
         public MoveThumb(MapCanvas parent, PathFigure figure, int index, double scale, List<MoveThumb> thumbList/*, bool isDragging = false*/)
@@ -309,8 +282,8 @@ namespace ShapefileEditor
                     Canvas.SetTop(this, Canvas.GetTop(this) / scale * value);
                     scale = value;
 
-                    PrevInsertThumb.Scale = scale;
-                    NextInsertThumb.Scale = scale;
+                    if (PrevInsertThumb != null) PrevInsertThumb.Scale = scale;
+                    if (NextInsertThumb != null) NextInsertThumb.Scale = scale;
                 }
             }
         }
@@ -380,8 +353,8 @@ namespace ShapefileEditor
             if (index == 0)
                 Figure.StartPoint = new Point(newLeft / Scale, newTop / Scale);
             
-            PrevInsertThumb.UpdatePosition();
-            NextInsertThumb.UpdatePosition();
+            PrevInsertThumb?.UpdatePosition();
+            NextInsertThumb?.UpdatePosition();
         }
 
 
