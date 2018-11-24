@@ -144,6 +144,12 @@ namespace ShapefileEditor
             Deselect();
         }
 
+        private void CanvasShape_Unloaded(object sender, RoutedEventArgs e)
+        {
+            //selectedShapes.Remove((CanvasShape)sender);
+            Deselect();
+        }
+
         #endregion Mouse handling
 
 

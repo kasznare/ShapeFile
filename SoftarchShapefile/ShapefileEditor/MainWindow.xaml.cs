@@ -65,11 +65,11 @@ namespace ShapefileEditor
 
             map.EmptyMapBackground = new SolidColorBrush(Colors.Black);
             map.DragButton = MouseButton.Left;
-            //map.Position = BMECoordinates;
-            map.Position = new PointLatLng(0, 0);
+            map.Position = BMECoordinates;
+            //map.Position = new PointLatLng(0, 0);
             map.ShowCenter = false;
-            //map.Zoom = 18;
-            map.Zoom = 2;
+            map.Zoom = 18;
+            //map.Zoom = 2;
 
             Layers = new ObservableCollection<Layer>();
 
@@ -97,11 +97,43 @@ namespace ShapefileEditor
             e.CanExecute = false;
         }
 
+        #region New command
+        private void NewCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    e.CanExecute = false;
+                    break;
+                case "shape":
+                    e.CanExecute = CollectionViewSource.GetDefaultView(Layers)?.CurrentItem != null;
+                    break;
+                default:
+                    e.CanExecute = false;
+                    break;
+            }
+        }
+        private void NewCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    break;
+                case "shape":
+                    Layer currentLayer = (Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem;
+                    currentLayer.Shapes.Add(new ShapefileShape("new shape"));
+                    break;
+                default:
+                    break;
+            }
+        }
+        #endregion New command
+
+        #region Open command
         private void OpenCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
-
         private void OpenCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (openFileDialog.ShowDialog() == true)
@@ -131,12 +163,13 @@ namespace ShapefileEditor
                 }
             }
         }
+        #endregion Open command
 
+        #region Save command
         private void SaveCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = CollectionViewSource.GetDefaultView(Layers)?.CurrentItem != null;
         }
-
         private void SaveCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             if (saveFileDialog.ShowDialog() == true)
@@ -175,26 +208,47 @@ namespace ShapefileEditor
                 }
             }
         }
+        #endregion Save command
 
+        #region Delete command
         private void DeleteCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            if ((string)e.Parameter == "layer")
+            switch ((string)e.Parameter)
             {
-                e.CanExecute = CollectionViewSource.GetDefaultView(Layers).CurrentItem != null;
+                case "layer":
+                    e.CanExecute = CollectionViewSource.GetDefaultView(Layers).CurrentItem != null;
+                    break;
+                case "shape":
+                    Layer currentLayer = (Layer)CollectionViewSource.GetDefaultView(Layers)?.CurrentItem;
+                    e.CanExecute = currentLayer != null && CollectionViewSource.GetDefaultView(currentLayer.Shapes).CurrentItem != null;
+                    break;
+                default:
+                    e.CanExecute = false;
+                    break;
             }
         }
-
         private void DeleteCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            if ((string)e.Parameter == "layer")
+            switch ((string)e.Parameter)
             {
-                MessageBoxResult dialogResult = MessageBox.Show("Are you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (dialogResult == MessageBoxResult.Yes)
-                {
-                    Layers.Remove((Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem);
-                }
+                case "layer":
+                    MessageBoxResult dialogResult = MessageBox.Show("Are you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (dialogResult == MessageBoxResult.Yes)
+                    {
+                        Layers.Remove((Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem);
+                    }
+                    break;
+                case "shape":
+                    Layer currentLayer = (Layer)CollectionViewSource.GetDefaultView(Layers)?.CurrentItem;
+                    var shapes = CollectionViewSource.GetDefaultView(currentLayer.Shapes);
+                    currentLayer.Shapes.Remove((ShapefileShape)shapes.CurrentItem);
+                    shapes.MoveCurrentTo(null);
+                    break;
+                default:
+                    break;
             }
         }
+        #endregion Delete command
 
         #endregion Commands
 
@@ -348,6 +402,12 @@ namespace ShapefileEditor
 
     public class ShapefileShape : DependencyObject
     {
+        public ShapefileShape(string name)
+        {
+            Name = name;
+            Attributes = new ObservableCollection<ShapefileAttributeEntry>();
+        }
+
         public ShapefileShape(string name, IGeometry geometry)
         {
             Name = name;
@@ -383,23 +443,23 @@ namespace ShapefileEditor
         }
     }
 
+
+
+
+
     public class SolidColorBrushToColorValueConverter : IValueConverter
     {
-
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (null == value)
             {
                 return null;
             }
-            // For a more sophisticated converter, check also the targetType and react accordingly..
             if (value is Color)
             {
                 Color color = (Color)value;
                 return new SolidColorBrush(color);
             }
-            // You can support here more source types if you wish
-            // For the example I throw an exception
 
             Type type = value.GetType();
             throw new InvalidOperationException("Unsupported type [" + type.Name + "]");
@@ -407,14 +467,10 @@ namespace ShapefileEditor
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            // If necessary, here you can convert back. Check if which brush it is (if its one),
-            // get its Color-value and return it.
-
             if (null == value)
             {
                 return null;
             }
-            // For a more sophisticated converter, check also the targetType and react accordingly..
             if (value is SolidColorBrush)
             {
                 SolidColorBrush brush = (SolidColorBrush)value;

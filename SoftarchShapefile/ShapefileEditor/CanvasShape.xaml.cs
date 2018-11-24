@@ -39,6 +39,8 @@ namespace ShapefileEditor
         }
 
 
+        private bool creatingNewShape = false;
+
         private PathGeometry geoPathGeometry;
 
         public PathGeometry DisplayGeometry
@@ -46,14 +48,29 @@ namespace ShapefileEditor
             get { return (PathGeometry)GetValue(DisplayGeometryProperty); }
             set { SetValue(DisplayGeometryProperty, value); }
         }
-        public static readonly DependencyProperty DisplayGeometryProperty = DependencyProperty.Register("DisplayGeometry", typeof(PathGeometry), typeof(CanvasShape));
+        public static DependencyProperty DisplayGeometryProperty = DependencyProperty.Register("DisplayGeometry", typeof(PathGeometry), typeof(CanvasShape), new PropertyMetadata(new PathGeometry()));
         
         public Map Map
         {
             get { return (Map)GetValue(MapProperty); }
             set { SetValue(MapProperty, value); }
         }
-        public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape));
+        public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape), new PropertyMetadata(new PropertyChangedCallback(MapChanged)));
+
+        private static void MapChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CanvasShape cs = ((CanvasShape)d);
+            if (cs.creatingNewShape)
+            {
+                Map map = (Map)e.NewValue;
+                PointLatLng position = map.Position;
+                RectLatLng viewArea = map.ViewArea;
+                Point topLeft = new Point(position.Lat - viewArea.HeightLat * 0.1, position.Lng - viewArea.WidthLng * 0.1);
+                Size size = new Size(viewArea.HeightLat * 0.2, viewArea.WidthLng * 0.2);
+                cs.Geometry = geometryReader.Read(new RectangleGeometry(new Rect(topLeft, size)));
+                cs.DisplayGeometry.Transform = cs.Transform;
+            }
+        }
 
         private bool isCommiting = false;
 
@@ -62,10 +79,27 @@ namespace ShapefileEditor
             get { return (IGeometry)GetValue(GeometryProperty); }
             set { SetValue(GeometryProperty, value); }
         }
-        public static readonly DependencyProperty GeometryProperty = DependencyProperty.Register("Geometry", typeof(IGeometry), typeof(CanvasShape), new PropertyMetadata(null, new PropertyChangedCallback(GeometryPropertyChanged)));
-        
+        public static readonly DependencyProperty GeometryProperty = DependencyProperty.Register("Geometry", typeof(IGeometry), typeof(CanvasShape), new PropertyMetadata(null, new PropertyChangedCallback(GeometryPropertyChanged), new CoerceValueCallback(GeometryCoerceValueCallback)));
+
+        private static object GeometryCoerceValueCallback(DependencyObject d, object baseValue)
+        {
+            CanvasShape cs = ((CanvasShape)d);
+            if (baseValue == null)
+            {
+                cs.creatingNewShape = true;
+                return null;
+            }
+            cs.creatingNewShape = false;
+            return baseValue;
+        }
+
         private static void GeometryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            if (e.NewValue == null)
+            {
+                Console.WriteLine("null");
+                return;
+            }
             CanvasShape cs = ((CanvasShape)d);
             if (!cs.isCommiting)
             {
@@ -85,7 +119,8 @@ namespace ShapefileEditor
         private static void TransformPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             CanvasShape cs = ((CanvasShape)d);
-            cs.DisplayGeometry.Transform = cs.Transform;
+            if (!cs.DisplayGeometry.IsFrozen)
+                cs.DisplayGeometry.Transform = cs.Transform;
         }
 
         public Layer Layer

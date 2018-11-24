@@ -14,7 +14,7 @@
     </Window.Resources>
 
     <Window.CommandBindings>
-        <CommandBinding Command="New" CanExecute="CommonCommandBinding_CanExecute"/>
+        <CommandBinding Command="New" Executed="NewCommandBinding_Executed" CanExecute="NewCommandBinding_CanExecute" />
         <CommandBinding Command="Open" Executed="OpenCommandBinding_Executed" CanExecute="OpenCommandBinding_CanExecute" />
         <CommandBinding Command="Save" Executed="SaveCommandBinding_Executed" CanExecute="SaveCommandBinding_CanExecute" />
         <CommandBinding Command="Delete" Executed="DeleteCommandBinding_Executed" CanExecute="DeleteCommandBinding_CanExecute" />
@@ -29,14 +29,14 @@
     <DockPanel >
         <Menu DockPanel.Dock="Top" Background="#FFEFEEF3">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Command="New"/>
+                <MenuItem Header="_New" Command="New" CommandParameter="layer"/>
                 <MenuItem Header="_Open" Command="Open"/>
                 <MenuItem Header="_Save" Command="Save"/>
             </MenuItem>
         </Menu>
         <ToolBarTray DockPanel.Dock="Top" Background="#FFEFEEF3">
             <ToolBar>
-                <Button Command="New" ToolTip="New">
+                <Button ToolTip="Create new layer" Focusable="False" Command="New" CommandParameter="layer">
                     <Image Width="16" Height="16">
                         <Image.Style>
                             <Style TargetType="Image">
@@ -50,7 +50,7 @@
                         </Image.Style>
                     </Image>
                 </Button>
-                <Button Command="Open" ToolTip="Open">
+                <Button ToolTip="Open layer from shapefile" Focusable="False" Command="Open">
                     <Image Width="16" Height="16">
                         <Image.Style>
                             <Style TargetType="Image">
@@ -64,7 +64,7 @@
                         </Image.Style>
                     </Image>
                 </Button>
-                <Button Command="Save" ToolTip="Save">
+                <Button ToolTip="Save selected layer to shapefile" Focusable="False" Command="Save">
                     <Image Width="16" Height="16">
                         <Image.Style>
                             <Style TargetType="Image">
@@ -258,13 +258,13 @@
                 <DockPanel >
                     <StackPanel DockPanel.Dock="Top" Background="#FFEEEEF2">
                         <ToolBar ToolBarTray.IsLocked="True" Background="{x:Null}">
-                            <Button x:Name="btnMoveLayerUp" ToolTip="Move layer up." Click="btnMoveLayerUp_Click">
-                                <Image Source="Icons/arrow-090.png"/>
+                            <Button x:Name="btnMoveLayerUp" ToolTip="Move selected layer backwards." Focusable="False" Click="btnMoveLayerUp_Click">
+                                <Image Source="Icons/shape_move_backwards.png"/>
                             </Button>
-                            <Button x:Name="btnMoveLayerDown" ToolTip="Move layer down." Click="btnMoveLayerDown_Click">
-                                <Image Source="Icons/arrow-270.png"/>
+                            <Button x:Name="btnMoveLayerDown" ToolTip="Move selected layer forwards." Focusable="False" Click="btnMoveLayerDown_Click">
+                                <Image Source="Icons/shape_move_forwards.png"/>
                             </Button>
-                            <Button x:Name="btnDeleteLayer" ToolTip="Move layer down." Command="Delete" CommandParameter="layer">
+                            <Button x:Name="btnDeleteLayer" ToolTip="Delete selected layer." Focusable="False" Command="Delete" CommandParameter="layer">
                                 <Image Width="16" Height="16">
                                     <Image.Style>
                                         <Style TargetType="Image">
@@ -498,12 +498,46 @@
             </dz:DockItem>
 
             <dz:DockItem x:Name="diMap" TabText="Map" Title="Map" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
-                <Grid>
-                    <local:Map x:Name="map" Zoom="15" MaxZoom="24" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
-                    <local:MapSettings x:Name="mapSettings" 
+                <DockPanel >
+                    <StackPanel DockPanel.Dock="Top" Background="#FFEEEEF2">
+                        <ToolBar ToolBarTray.IsLocked="True" Background="{x:Null}">
+                            <Button ToolTip="Add new shape." Command="New" CommandParameter="shape" Focusable="False">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/plus.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/plus.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                            <Button ToolTip="Delete selected shape." Focusable="False" Command="Delete" CommandParameter="shape">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/cross.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/cross.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                        </ToolBar>
+                    </StackPanel>
+                    <Grid>
+                        <local:Map x:Name="map" Zoom="15" MaxZoom="24" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
+                        <local:MapSettings x:Name="mapSettings" 
                                        SelectedProvider="{Binding ElementName=map, Path=MapProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        ShowCrosshairChangedEvent="ShowCrosshairEventHandler"/>
-                </Grid>
+                    </Grid>
+                </DockPanel>
             </dz:DockItem>
 
             <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}">

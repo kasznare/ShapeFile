@@ -82,9 +82,45 @@ namespace PolyEditTest
             }
 
 
-            first.Data = pathGeometry;
+            PathGeometry pg2 = new PathGeometry();
 
-            PlaceThumbs(pathGeometry);
+            {
+                Point[] wpfPoints = new Point[1];
+                for (int i = 0; i < wpfPoints.Length; i++)
+                {
+                    wpfPoints[i] = new Point(150 + 50 * Math.Cos(2 * Math.PI * (i) / 11), 180 - 50 * Math.Sin(2 * Math.PI * (i) / 11));
+                }
+                Point startPoint = new Point(200, 180);
+
+                PolyLineSegment polyLineSegment = new PolyLineSegment();
+
+                foreach (Point coordinate in wpfPoints)
+                    polyLineSegment.Points.Add(coordinate);
+
+                PathFigure figure = new PathFigure
+                {
+                    StartPoint = startPoint,
+                    IsClosed = false,
+                    IsFilled = false
+                };
+                figure.Segments.Add(polyLineSegment);
+
+                pg2.Figures.Add(figure);
+            }
+
+
+            //Szerkeszthető geometria:
+            //first.Data = pathGeometry;
+            //PlaceThumbs(pathGeometry);
+
+            //PolyLine pont:
+            first.Data = pg2;
+            first.Stroke = new SolidColorBrush(Colors.Green);
+            first.StrokeThickness = 10;
+            first.StrokeStartLineCap = PenLineCap.Round;
+            //first.StrokeLineJoin = PenLineJoin.Round;
+            first.StrokeEndLineCap = PenLineCap.Round;
+
         }
 
 

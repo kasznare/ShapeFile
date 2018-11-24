@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:local="clr-namespace:ShapefileEditor"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d" Width="256" Height="256">
 
     <Canvas.Resources>
@@ -135,12 +136,13 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:CanvasShape 
-                            Transform="{DynamicResource transform}" 
-                            Geometry="{Binding Path=Geometry, Mode=TwoWay}" 
-                            Style="{StaticResource layerStyle}" 
-                            PreviewMouseMove="CanvasShape_PreviewMouseMove" 
-                            PreviewMouseLeftButtonDown="CanvasShape_PreviewMouseLeftButtonDown" 
-                            PreviewMouseLeftButtonUp="CanvasShape_PreviewMouseLeftButtonUp"/>
+                                Map="{Binding Path=Map, RelativeSource={RelativeSource FindAncestor, AncestorType=local:MapCanvas}, diag:PresentationTraceSources.TraceLevel=High}"
+                                Transform="{DynamicResource transform}" 
+                                Geometry="{Binding Path=Geometry, Mode=TwoWay}" 
+                                Style="{StaticResource layerStyle}" 
+                                PreviewMouseMove="CanvasShape_PreviewMouseMove" 
+                                PreviewMouseLeftButtonDown="CanvasShape_PreviewMouseLeftButtonDown" 
+                                PreviewMouseLeftButtonUp="CanvasShape_PreviewMouseLeftButtonUp" Unloaded="CanvasShape_Unloaded"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
