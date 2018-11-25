@@ -1,0 +1,31 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dz="http://schemas.devzest.com/presentation/docking">
+	<ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="StudioBlue/Brushes.xaml"/>
+        <ResourceDictionary Source="StudioBlue/InertButton.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DockControl.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DockTreeControl.xaml"/>
+        <ResourceDictionary Source="StudioBlue/ToolWindowCaption.xaml"/>
+        <ResourceDictionary Source="StudioBlue/ToolWindow.xaml"/>
+        <ResourceDictionary Source="StudioBlue/ToolWindowTab.xaml"/>
+        <ResourceDictionary Source="StudioBlue/AutoHideTab.xaml"/>
+        <ResourceDictionary Source="StudioBlue/AutoHideClient.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DocumentWindow.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DocumentTab.xaml"/>
+        <ResourceDictionary Source="StudioBlue/PreviewOverlay.xaml"/>
+        <ResourceDictionary Source="StudioBlue/WindowSwitcher.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DockTreeClientOverlay.xaml"/>
+        <ResourceDictionary Source="StudioBlue/DockPaneControlOverlay.xaml"/>
+        <ResourceDictionary Source="StudioBlue/WpfFloatingWindow.xaml"/>
+        <ResourceDictionary>
+            <ResourceDictionary.Source>
+                <dz:ConditionalUriExtension
+                    Condition="{x:Static dz:FloatingWindow.CanBeNative}"
+                    True="StudioBlue/NativeFloatingWindow.xaml"
+                    False="Empty.xaml" />
+            </ResourceDictionary.Source>
+        </ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

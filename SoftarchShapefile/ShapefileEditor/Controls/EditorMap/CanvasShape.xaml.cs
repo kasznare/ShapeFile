@@ -63,14 +63,35 @@ namespace ShapefileEditor
             if (cs.creatingNewShape)
             {
                 Map map = (Map)e.NewValue;
-                PointLatLng position = map.Position;
                 RectLatLng viewArea = map.ViewArea;
-                Point topLeft = new Point(position.Lat - viewArea.HeightLat * 0.1, position.Lng - viewArea.WidthLng * 0.1);
-                Size size = new Size(viewArea.HeightLat * 0.2, viewArea.WidthLng * 0.2);
-                cs.Geometry = geometryReader.Read(new RectangleGeometry(new Rect(topLeft, size)));
+                switch (cs.ShapeType)
+                {
+                    case AllowedShapeType.Point:
+                        //cs.Geometry = geometryReader.Read(new PathGeometry();
+                        break;
+                    case AllowedShapeType.Line:
+                        Point left = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.4);
+                        Point right = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.6);
+                        cs.Geometry = geometryReader.Read(new LineGeometry(left, right));
+                        break;
+                    case AllowedShapeType.Polygon:
+                        Point topLeft = new Point(viewArea.Lat - viewArea.HeightLat * 0.6, viewArea.Lng + viewArea.WidthLng * 0.4);
+                        Size size = new Size(viewArea.HeightLat * 0.2, viewArea.WidthLng * 0.2);
+                        cs.Geometry = geometryReader.Read(new RectangleGeometry(new Rect(topLeft, size)));
+                        break;
+                }
                 cs.DisplayGeometry.Transform = cs.Transform;
             }
         }
+        
+        public AllowedShapeType ShapeType
+        {
+            get { return (AllowedShapeType)GetValue(ShapeTypeProperty); }
+            set { SetValue(ShapeTypeProperty, value); }
+        }
+        public static readonly DependencyProperty ShapeTypeProperty = DependencyProperty.Register("ShapeType", typeof(AllowedShapeType), typeof(CanvasShape), new PropertyMetadata(AllowedShapeType.Line));
+
+
 
         private bool isCommiting = false;
 

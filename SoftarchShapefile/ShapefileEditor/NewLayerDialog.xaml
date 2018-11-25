@@ -1,0 +1,34 @@
+﻿<Window x:Class="ShapefileEditor.NewLayerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShapefileEditor"
+        mc:Ignorable="d"
+        Title="New Layer" Height="110" Width="300" ShowInTaskbar="False" ResizeMode="NoResize" WindowStyle="ToolWindow" Background="WhiteSmoke">
+    <DockPanel Margin="3">
+        <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Layer name:" Height="12" Margin="0,8"/>
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="newLayerName" BorderBrush="#FFCCCEDB" BorderThickness="1" Margin="0,3,0,3" Text="{Binding LayerName}"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="Shape type:" Height="12" Margin="0,8"/>
+            <!--<ComboBox Grid.Row="1" Grid.Column="1" Margin="0,3,0,3">
+                <ComboBoxItem Content="Point"/>
+                <ComboBoxItem Content="Line"/>
+                <ComboBoxItem Content="Polygon"/>
+            </ComboBox>-->
+            <ComboBox Grid.Row="1" Grid.Column="1" x:Name="newLayerType" Margin="0,3,0,3" SelectedItem="{Binding ShapeType}"/>
+        </Grid> 
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="5,0,5,0">
+            <Button Content="OK" Width="60" Height="22" Click="OK_Click"/>
+            <Button Content="Cancel" Width="60" Height="22" Margin="5,0,0,0" Click="Cancel_Click"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

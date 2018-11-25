@@ -111,6 +111,7 @@ namespace ShapefileEditor
 
         private void Map_OnMapZoomChanged()
         {
+            Console.WriteLine(Map.Zoom);
             ScaleThumbs();
         }
 
@@ -303,8 +304,9 @@ namespace ShapefileEditor
             {
                 if (value != scale)
                 {
-                    Canvas.SetLeft(this, Canvas.GetLeft(this) / scale * value);
-                    Canvas.SetTop(this, Canvas.GetTop(this) / scale * value);
+                    double zoomFactor = value / scale;
+                    Canvas.SetLeft(this, Canvas.GetLeft(this) * zoomFactor);
+                    Canvas.SetTop(this, Canvas.GetTop(this) * zoomFactor);
                     scale = value;
 
                     if (PrevInsertThumb != null) PrevInsertThumb.Scale = scale;
@@ -370,7 +372,7 @@ namespace ShapefileEditor
 
             Canvas.SetLeft(this, newLeft);
             Canvas.SetTop(this, newTop);
-
+            
             int index = GetIndex();
             (Figure.Segments[0] as PolyLineSegment).Points[index] = new Point(newLeft / Scale, newTop / Scale);
 

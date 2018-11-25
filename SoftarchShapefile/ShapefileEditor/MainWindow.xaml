@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dz="http://schemas.devzest.com/presentation/docking"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         xmlns:local="clr-namespace:ShapefileEditor"
         
         mc:Ignorable="d"
-        Title="Shapefile Editor" Height="768" Width="1024" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False" SnapsToDevicePixels="True">
+        Title="Shapefile Editor" Height="1080" Width="1920" WindowState="Maximized" Background="#FFEFEEF3" AllowsTransparency="False" SnapsToDevicePixels="True">
     <Window.Resources>
         <local:SolidColorBrushToColorValueConverter  x:Key="SolidColorBrushToColor_ValueConverter"/>
+        <local:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter"/>
+        <local:DecimalCountToIncrementValueConverter  x:Key="DecimalCountToIncrement_ValueConverter"/>
+        <local:FieldMinMaxValueConverter x:Key="FieldMinMax_ValueConverter"/>
     </Window.Resources>
 
     <Window.CommandBindings>
@@ -29,67 +33,15 @@
     <DockPanel >
         <Menu DockPanel.Dock="Top" Background="#FFEFEEF3">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Command="New" CommandParameter="layer"/>
-                <MenuItem Header="_Open" Command="Open"/>
-                <MenuItem Header="_Save" Command="Save"/>
+                <MenuItem Header="_New Layer" Command="New" CommandParameter="layer"/>
+                <MenuItem Header="_Open Shapefile" Command="Open"/>
+                <MenuItem Header="_Save Layer" Command="Save"/>
+                <MenuItem Header="_Remove Layer"  Command="Delete" CommandParameter="layer"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" />
             </MenuItem>
         </Menu>
-        <ToolBarTray DockPanel.Dock="Top" Background="#FFEFEEF3">
-            <ToolBar>
-                <Button ToolTip="Create new layer" Focusable="False" Command="New" CommandParameter="layer">
-                    <Image Width="16" Height="16">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Source" Value="Icons/document-plus.png"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
-                                        <Setter Property="Source" Value="Icons/disabled/document-plus.png" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                </Button>
-                <Button ToolTip="Open layer from shapefile" Focusable="False" Command="Open">
-                    <Image Width="16" Height="16">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Source" Value="Icons/folder.png"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
-                                        <Setter Property="Source" Value="Icons/disabled/folder.png" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                </Button>
-                <Button ToolTip="Save selected layer to shapefile" Focusable="False" Command="Save">
-                    <Image Width="16" Height="16">
-                        <Image.Style>
-                            <Style TargetType="Image">
-                                <Setter Property="Source" Value="Icons/disk-black.png"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
-                                        <Setter Property="Source" Value="Icons/disabled/disk-black.png" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Image.Style>
-                    </Image>
-                </Button>
-            </ToolBar>
-            <ToolBar>
-                <Button Command="Cut" Content="Cut" />
-                <Button Command="Copy" Content="Copy" />
-                <Button Command="Paste" Content="Paste" />
-            </ToolBar>
-            <ToolBar>
-                <Button Command="Cut" Content="Place" />
-                <Button Command="Copy" Content="hol" />
-                <Button Command="Paste" Content="der" />
-            </ToolBar>
-        </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom" Background="#FF007ACC" Foreground="White">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -128,51 +80,106 @@
                                     <RowDefinition Height="5"/>
                                     <RowDefinition Height="auto"/>
                                 </Grid.RowDefinitions>
-                                <DataGrid x:Name="dataGrid" Grid.Row="0" Margin="-1" RowHeight="22" Background="WhiteSmoke" ColumnHeaderStyle="{DynamicResource headerStyle}" HeadersVisibility="None" ItemsSource="{Binding Attributes}" BorderBrush="{x:Null}" Padding="0" AutoGenerateColumns="False" CanUserReorderColumns="False" GridLinesVisibility="None" >
-                                    <DataGrid.Resources>
-                                        <Style x:Key="headerStyle" TargetType="DataGridColumnHeader">
-                                            <Setter Property="Background" Value="#FFEEEEF2"/>
-                                            <Setter Property="Height" Value="22"/>
-                                            <Setter Property="Padding" Value="5,0,0,0"/>
-                                            <!--<Setter Property="Margin" Value="0"/>-->
-                                        </Style>
-                                    </DataGrid.Resources>
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Binding="{Binding FieldDescriptor.Name}" ClipboardContentBinding="{x:Null}" Header="Attribute" Width="0.5*" IsReadOnly="True">
-                                            <DataGridTextColumn.ElementStyle>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Height" Value="22"/>
-                                                    <Setter Property="Margin" Value="-1"/>
-                                                    <Setter Property="Padding" Value="5,4,5,2"/>
-                                                    <Setter Property="Foreground" Value="Black"/>
-                                                    <Setter Property="Background" Value="WhiteSmoke"/>
-                                                </Style>
-                                            </DataGridTextColumn.ElementStyle>
-                                        </DataGridTextColumn>
-                                        <DataGridTextColumn Binding="{Binding Value}" ClipboardContentBinding="{x:Null}" Header="Value" Width="0.5*">
-                                            <DataGridTextColumn.ElementStyle>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Height" Value="22"/>
-                                                    <Setter Property="Margin" Value="-1"/>
-                                                    <Setter Property="Padding" Value="5,4,5,2"/>
-                                                </Style>
-                                            </DataGridTextColumn.ElementStyle>
-                                            <DataGridTextColumn.EditingElementStyle>
-                                                <Style TargetType="TextBox">
-                                                    <Setter Property="BorderThickness" Value="1"/>
-                                                    <Setter Property="BorderBrush" Value="#FF007ACC"/>
-                                                </Style>
-                                            </DataGridTextColumn.EditingElementStyle>
-                                        </DataGridTextColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                <ListBox x:Name="shapeAttributesList" Grid.Row="0" Background="WhiteSmoke" ItemsSource="{Binding Attributes}" BorderBrush="{x:Null}" Padding="5" HorizontalContentAlignment="Stretch" Margin="-2">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock 
+                                                    Grid.Column="0" 
+                                                    Height="22" 
+                                                    Text="{Binding Path=FieldDescriptor.Name}" 
+                                                    VerticalAlignment="Center" 
+                                                    HorizontalAlignment="Stretch"
+                                                    Padding="0,3,0,0"/>
+                                                <StackPanel 
+                                                    Grid.Column="1" 
+                                                    HorizontalAlignment="Stretch"
+                                                    Margin="0,2,0,2">
+                                                    <xctk:DecimalUpDown 
+                                                        Value="{Binding Value, Converter={StaticResource DecimalToDoubleConverter}, Mode=TwoWay}"
+                                                        Increment="{Binding FieldDescriptor.DecimalCount, Converter={StaticResource DecimalCountToIncrement_ValueConverter}, Mode=OneWay}"
+                                                        DefaultValue="0" 
+                                                        MinWidth="0" 
+                                                        Minimum="{Binding Path=FieldDescriptor, Converter={StaticResource FieldMinMax_ValueConverter}, ConverterParameter=min, Mode=OneWay}"
+                                                        Maximum="{Binding Path=FieldDescriptor, Converter={StaticResource FieldMinMax_ValueConverter}, ConverterParameter=max, Mode=OneWay}" >
+                                                        <xctk:DecimalUpDown.Style>
+                                                            <Style TargetType="xctk:DecimalUpDown">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Path=FieldDescriptor.DbaseType}" Value="N">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Path=FieldDescriptor.DbaseType}" Value="F">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </xctk:DecimalUpDown.Style>
+                                                    </xctk:DecimalUpDown>
+                                                    <local:AsciiTextBox 
+                                                        Text="{Binding Path=Value}"
+                                                        Height="22"
+                                                        BorderBrush="#FFCCCEDB"
+                                                        BorderThickness="1"  
+                                                        MinWidth="0">
+                                                        <local:AsciiTextBox.Style>
+                                                            <Style TargetType="local:AsciiTextBox">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Path=FieldDescriptor.DbaseType}" Value="C">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </local:AsciiTextBox.Style>
+                                                    </local:AsciiTextBox>
+                                                    <DatePicker 
+                                                        SelectedDate="{Binding Path=Value}" 
+                                                        BorderBrush="{x:Null}" 
+                                                        MinWidth="0"
+                                                        Padding="0">
+                                                        <DatePicker.Style>
+                                                            <Style TargetType="DatePicker">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Path=FieldDescriptor.DbaseType}" Value="D">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </DatePicker.Style>
+                                                    </DatePicker>
+                                                    <CheckBox 
+                                                        IsChecked="{Binding Path=Value}" 
+                                                        MinWidth="0"
+                                                        Margin="4">
+                                                        <CheckBox.Style>
+                                                            <Style TargetType="CheckBox">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Path=FieldDescriptor.DbaseType}" Value="L">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </CheckBox.Style>
+                                                    </CheckBox>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                                 <GridSplitter Grid.Row="1" Background="#FFC2C3C9" HorizontalAlignment="Stretch"/>
-                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=dataGrid}" TextWrapping="Wrap" Padding="5">
+                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=shapeAttributesList}" TextWrapping="Wrap" Padding="5">
                                     <Bold><Run Text="{Binding Name}"/></Bold>:&#160;
                                     <Run>
                                         <Run.Style>
                                             <Style TargetType="Run">
-                                                <Setter Property="Text" Value="unknown type"/>
+                                                <Setter Property="Text" Value=""/><!--unknown type-->
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding DbaseType}" Value="N">
                                                         <Setter Property="Text">
@@ -219,28 +226,28 @@
                                                 <Setter Property="TextBlock.Visibility" Value="Visible"/>
                                             </Style.Setters>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=dataGrid}" Value="{x:Null}">
+                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=shapeAttributesList}" Value="{x:Null}">
                                                     <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=dataGrid}" Value="{x:Null}">
+                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=shapeAttributesList}" Value="{x:Null}">
                                                     <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=dataGrid}" TextWrapping="Wrap" Padding="5">
+                                <TextBlock Grid.Row="2" DataContext="{Binding SelectedItem.FieldDescriptor, ElementName=shapeAttributesList}" TextWrapping="Wrap" Padding="5">
                                     <TextBlock.Style>
                                         <Style>
                                             <Style.Setters>
                                                 <Setter Property="TextBlock.Visibility" Value="Collapsed"/>
                                             </Style.Setters>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=dataGrid}" Value="{x:Null}">
+                                                <DataTrigger Binding="{Binding SelectedItem, ElementName=shapeAttributesList}" Value="{x:Null}">
                                                     <Setter Property="TextBlock.Visibility" Value="Visible"/>
                                                     <Setter Property="TextBlock.Text" Value="No data field selected"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=dataGrid}" Value="{x:Null}">
+                                                <DataTrigger Binding="{Binding Path=ItemsSource, ElementName=shapeAttributesList}" Value="{x:Null}">
                                                     <Setter Property="TextBlock.Visibility" Value="Visible"/>
                                                     <Setter Property="TextBlock.Text" Value="No shape selected"/>
                                                 </DataTrigger>
@@ -258,13 +265,49 @@
                 <DockPanel >
                     <StackPanel DockPanel.Dock="Top" Background="#FFEEEEF2">
                         <ToolBar ToolBarTray.IsLocked="True" Background="{x:Null}">
-                            <Button x:Name="btnMoveLayerUp" ToolTip="Move selected layer backwards." Focusable="False" Click="btnMoveLayerUp_Click">
-                                <Image Source="Icons/shape_move_backwards.png"/>
+                            <Button ToolTip="Create new layer" Focusable="False" Command="New" CommandParameter="layer">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/document-plus.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/document-plus.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                             </Button>
-                            <Button x:Name="btnMoveLayerDown" ToolTip="Move selected layer forwards." Focusable="False" Click="btnMoveLayerDown_Click">
-                                <Image Source="Icons/shape_move_forwards.png"/>
+                            <Button ToolTip="Open layer from shapefile" Focusable="False" Command="Open">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/folder.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/folder.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                             </Button>
-                            <Button x:Name="btnDeleteLayer" ToolTip="Delete selected layer." Focusable="False" Command="Delete" CommandParameter="layer">
+                            <Button ToolTip="Save selected layer to shapefile" Focusable="False" Command="Save">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/disk-black.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/disk-black.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                            <Button x:Name="btnDeleteLayer" ToolTip="Remove selected layer." Focusable="False" Command="Delete" CommandParameter="layer">
                                 <Image Width="16" Height="16">
                                     <Image.Style>
                                         <Style TargetType="Image">
@@ -277,6 +320,13 @@
                                         </Style>
                                     </Image.Style>
                                 </Image>
+                            </Button>
+                            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                            <Button x:Name="btnMoveLayerUp" ToolTip="Move selected layer backwards." Focusable="False" Click="btnMoveLayerUp_Click">
+                                <Image Source="Icons/shape_move_backwards.png"/>
+                            </Button>
+                            <Button x:Name="btnMoveLayerDown" ToolTip="Move selected layer forwards." Focusable="False" Click="btnMoveLayerDown_Click">
+                                <Image Source="Icons/shape_move_forwards.png"/>
                             </Button>
                         </ToolBar>
                     </StackPanel>
@@ -325,39 +375,9 @@
                                         </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
-                                <!--<Setter Property="LayoutTransform">
-                                    <Setter.Value>
-                                        <ScaleTransform ScaleX="1" ScaleY="-1" />
-                                    </Setter.Value>
-                                </Setter>-->
                             </Style>
                         </ListBox.Resources>
-
-                        <!--<ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel VerticalAlignment="Top"  Orientation="Vertical">
-                                    <VirtualizingStackPanel.LayoutTransform>
-                                        <ScaleTransform ScaleX="1" ScaleY="-1" />
-                                    </VirtualizingStackPanel.LayoutTransform>
-                                </VirtualizingStackPanel>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>-->
-
-                        <!--<ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True" >
-                                    <Setter Property="FontWeight" Value="Bold" />
-                                    <Setter Property="Background" Value="Red" />
-                                    -->
-                        <!--<Setter Property="Foreground" Value="Black" />-->
-                        <!--
-                                    <Setter Property="Opacity" Value="0.3" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListBox.ItemContainerStyle>-->
+                        
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Stretch" Margin="0">
@@ -406,7 +426,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <ListBox ItemsSource="{Binding Attributes}" 
+                                                <ListBox ItemsSource="{Binding Header.Fields}" 
                                                       HorizontalAlignment="Stretch" 
                                                       HorizontalContentAlignment="Stretch" 
                                                       ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
@@ -532,12 +552,214 @@
                         </ToolBar>
                     </StackPanel>
                     <Grid>
-                        <local:Map x:Name="map" Zoom="15" MaxZoom="24" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
+                        <local:Map x:Name="map" Zoom="15" MaxZoom="18" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
                         <local:MapSettings x:Name="mapSettings" 
                                        SelectedProvider="{Binding ElementName=map, Path=MapProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        ShowCrosshairChangedEvent="ShowCrosshairEventHandler"/>
                     </Grid>
                 </DockPanel>
+            </dz:DockItem>
+
+            <dz:DockItem x:Name="diLayerProperties" TabText="Layer Properties" Title="Layer Properties" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
+                <Grid Background="WhiteSmoke">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0" MinWidth="200" HorizontalAlignment="Stretch" Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" MinWidth="90"/>
+                            <ColumnDefinition Width="*" MinWidth="80"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="22"/>
+                            <RowDefinition Height="22"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="22"/>
+                            <RowDefinition Height="22"/>
+                            <RowDefinition Height="22"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" Text="Layer name"/>
+                        <TextBox   Grid.Row="0" Grid.Column="2" Text="{Binding Layers.CurrentItem.Name}" BorderBrush="#FFCCCEDB" BorderThickness="1"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Text="File path"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Layers.CurrentItem.FileName}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" Text="Shape type"/>
+                        <TextBlock Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Layers.CurrentItem.ShapeGeometryType}"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" Text="Shape count"/>
+                        <TextBlock Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Layers.CurrentItem.Shapes.Count}"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" Text="Attribute count"/>
+                        <TextBlock Grid.Row="5" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Layers.CurrentItem.Header.NumFields}"/>
+
+                    </Grid>
+
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch" ResizeBehavior="BasedOnAlignment" Background="#FFC2C3C9"/>
+
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <ListView Grid.Row="0" Margin="4" x:Name="layerAttributeListView" ItemsSource="{Binding Layers.CurrentItem.Attributes}" BorderBrush="#FFCCCEDB" BorderThickness="1" Background="white" SelectionMode="Single" IsSynchronizedWithCurrentItem="True">
+                            <ListView.Resources>
+                                <GridView x:Key="one">
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style TargetType="GridViewColumnHeader">
+                                            <Setter Property="Height" Value="22"/>
+                                            <Setter Property="Background" Value="#FFF5F5F5"/>
+                                            <Setter Property="BorderBrush" Value="#FFE0E3E6"/>
+                                            <Setter Property="BorderThickness" Value="1,0,0,1"/>
+                                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                            <Setter Property="Padding" Value="5,0,0,0"/>
+                                            <Setter Property="Width" Value="auto"/>
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Header="Attribute Name" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}" Padding="0,4,0,4"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Type" Width="60">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock>
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="unknown type"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding DbaseType}" Value="N">
+                                                                    <Setter Property="Text" Value="Numeric"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DbaseType}" Value="F">
+                                                                    <Setter Property="Text" Value="Numeric"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DbaseType}" Value="C">
+                                                                    <Setter Property="Text" Value="Text"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DbaseType}" Value="D">
+                                                                    <Setter Property="Text" Value="Date"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding DbaseType}" Value="L">
+                                                                    <Setter Property="Text" Value="Logical"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Length"  Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Length}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Decimals"  Width="50">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding DecimalCount}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.Resources>
+                            <ListView.Style>
+                                <Style TargetType="ListView">
+                                    <Setter Property="View" Value="{StaticResource one}" />
+                                </Style>
+                            </ListView.Style>
+                        </ListView>
+                        <!--</Grid>-->
+                        <!--</Border>-->
+                        <StackPanel Grid.Row="1" Margin="4">
+                            <WrapPanel Orientation="Horizontal">
+                                <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                    <TextBlock VerticalAlignment="Center" Height="18" Text="Name"/>
+                                    <local:AsciiTextBox x:Name="newFieldName" MinWidth="150" MaxLength="32" Height="22" BorderBrush="#FFCCCEDB" BorderThickness="1" />
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="0,0,10,0" >
+                                    <TextBlock VerticalAlignment="Center" Height="18" Text="Type"/>
+                                    <ComboBox x:Name="newFieldType" MinWidth="70" Height="22">
+                                        <ComboBoxItem Tag="N" Content="Numeric" IsSelected="True"/>
+                                        <ComboBoxItem Tag="C" Content="Text"/>
+                                        <ComboBoxItem Tag="D" Content="Date"/>
+                                        <ComboBoxItem Tag="L" Content="Logical"/>
+                                    </ComboBox>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                    <TextBlock VerticalAlignment="Center" Height="18" Text="Length"/>
+                                    <xctk:IntegerUpDown 
+                                        x:Name="newFieldLength" 
+                                        Minimum="1" 
+                                        Value="5" 
+                                        ClipValueToMinMax="True" 
+                                        Height="22" 
+                                        BorderBrush="#FFCCCEDB" 
+                                        BorderThickness="1">
+                                        <xctk:IntegerUpDown.Style>
+                                            <Style TargetType="xctk:IntegerUpDown">
+                                                <Setter Property="Maximum" Value="254"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=newFieldType, Path=SelectedIndex}" Value="0">
+                                                        <Setter Property="Maximum" Value="20"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </xctk:IntegerUpDown.Style>
+                                    </xctk:IntegerUpDown>
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=newFieldType, Path=SelectedIndex}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="True"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding ElementName=newFieldType, Path=SelectedIndex}" Value="1">
+                                                    <Setter Property="IsEnabled" Value="True"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                    <TextBlock VerticalAlignment="Center" Height="18" Text="Decimals"/>
+                                    <xctk:IntegerUpDown 
+                                        x:Name="newFieldDecimals" 
+                                        Minimum="0" 
+                                        Maximum="15" 
+                                        Value="0" 
+                                        ClipValueToMinMax="True" 
+                                        Height="22" 
+                                        BorderBrush="#FFCCCEDB" 
+                                        BorderThickness="1" />
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="IsEnabled" Value="False"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ElementName=newFieldType, Path=SelectedIndex}" Value="0">
+                                                    <Setter Property="IsEnabled" Value="True"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                </StackPanel>
+                                <Button Height="22" Margin="0,0,10,0" Content="Add New" Command="New" CommandParameter="field" VerticalAlignment="Bottom"/>
+                                <Button Height="22" Content="Remove" Command="Delete" CommandParameter="field" VerticalAlignment="Bottom"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Grid>
+
+                </Grid>
             </dz:DockItem>
 
             <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}">

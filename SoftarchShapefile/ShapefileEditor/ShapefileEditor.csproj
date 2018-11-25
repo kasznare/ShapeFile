@@ -142,29 +142,35 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CanvasShape.xaml.cs">
+    <Compile Include="Controls\EditorMap\CanvasShape.xaml.cs">
       <DependentUpon>CanvasShape.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GMapPathGeometryWriter.cs" />
-    <Compile Include="Map.cs" />
-    <Compile Include="MapSettings.xaml.cs">
+    <Compile Include="Controls\Utilities\AsciiTextBox.cs" />
+    <Compile Include="NewLayerDialog.xaml.cs">
+      <DependentUpon>NewLayerDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\GMapPathGeometryWriter.cs" />
+    <Compile Include="Controls\EditorMap\Map.cs" />
+    <Compile Include="Controls\EditorMap\MapSettings.xaml.cs">
       <DependentUpon>MapSettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PointLatLngFormatter.cs" />
-    <Compile Include="MapCanvas.xaml.cs">
+    <Compile Include="Utilities\PointLatLngFormatter.cs" />
+    <Compile Include="Controls\EditorMap\MapCanvas.xaml.cs">
       <DependentUpon>MapCanvas.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RedirectWriter.cs" />
-    <Compile Include="ScalingMarker.xaml.cs">
-      <DependentUpon>ScalingMarker.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="StretchingTreeView.cs" />
-    <Compile Include="Themes.cs" />
-    <Compile Include="TriangleToggleButton.xaml.cs">
+    <Compile Include="Utilities\RedirectWriter.cs" />
+    <Compile Include="ShapefileViewModel.cs" />
+    <Compile Include="Themes\Themes.cs" />
+    <Compile Include="Controls\TriangleToggleButton.xaml.cs">
       <DependentUpon>TriangleToggleButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GMapGeometryReader.cs" />
-    <Page Include="CanvasShape.xaml">
+    <Compile Include="Utilities\GMapGeometryReader.cs" />
+    <Page Include="Controls\EditorMap\CanvasShape.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -180,99 +186,99 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="MapSettings.xaml">
+    <Page Include="Controls\EditorMap\MapSettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MapCanvas.xaml">
+    <Page Include="Controls\EditorMap\MapCanvas.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ScalingMarker.xaml">
+    <Page Include="NewLayerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\VS_blue.xaml">
+    <Page Include="Themes\StudioBlue.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\AutoHideClient.xaml">
+    <Page Include="Themes\StudioBlue\AutoHideClient.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\AutoHideTab.xaml">
+    <Page Include="Themes\StudioBlue\AutoHideTab.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\AutoHideWindow.xaml">
+    <Page Include="Themes\StudioBlue\AutoHideWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\Brushes.xaml">
+    <Page Include="Themes\StudioBlue\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DockControl.xaml">
+    <Page Include="Themes\StudioBlue\DockControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DockGuide.xaml">
+    <Page Include="Themes\StudioBlue\DockGuide.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DockPaneControlOverlay.xaml">
+    <Page Include="Themes\StudioBlue\DockPaneControlOverlay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DockTreeClientOverlay.xaml">
+    <Page Include="Themes\StudioBlue\DockTreeClientOverlay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DockTreeControl.xaml">
+    <Page Include="Themes\StudioBlue\DockTreeControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DocumentTab.xaml">
+    <Page Include="Themes\StudioBlue\DocumentTab.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\DocumentWindow.xaml">
+    <Page Include="Themes\StudioBlue\DocumentWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\InertButton.xaml">
+    <Page Include="Themes\StudioBlue\InertButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\NativeFloatingWindow.xaml">
+    <Page Include="Themes\StudioBlue\NativeFloatingWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\PreviewOverlay.xaml">
+    <Page Include="Themes\StudioBlue\PreviewOverlay.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\ToolWindow.xaml">
+    <Page Include="Themes\StudioBlue\ToolWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\ToolWindowCaption.xaml">
+    <Page Include="Themes\StudioBlue\ToolWindowCaption.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\ToolWindowTab.xaml">
+    <Page Include="Themes\StudioBlue\ToolWindowTab.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\WindowSwitcher.xaml">
+    <Page Include="Themes\StudioBlue\WindowSwitcher.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\VS_blue\WpfFloatingWindow.xaml">
+    <Page Include="Themes\StudioBlue\WpfFloatingWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TriangleToggleButton.xaml">
+    <Page Include="Controls\TriangleToggleButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -280,11 +286,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -301,6 +302,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Resources\EmptyDbaseHeader.dbf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
