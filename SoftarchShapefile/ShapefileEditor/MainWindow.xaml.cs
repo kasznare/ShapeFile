@@ -1,30 +1,19 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using GeoAPI.Geometries;
 using GMap.NET;
 using GMap.NET.MapProviders;
-using GMap.NET.WindowsPresentation;
 using Microsoft.Win32;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using NetTopologySuite.Windows.Media;
 
 namespace ShapefileEditor
 {
@@ -35,63 +24,65 @@ namespace ShapefileEditor
     {
         private static PointLatLng BMECoordinates = new PointLatLng(47.473324, 19.0609954);
         
-        OpenFileDialog openFileDialog;
-        SaveFileDialog saveFileDialog;
-        
-        MapCanvas mapCanvas;
-        public ObservableCollection<Layer> Layers { get; private set; }
-
-
-
         public MainWindow()
         {
             InitializeComponent();
 
             Themes.Load("StudioBlue");
-            
-            openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
-            openFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
 
-            saveFileDialog = new SaveFileDialog();
-            saveFileDialog.InitialDirectory = System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName;
-            saveFileDialog.Filter = "Shapefiles (*.shp)|*.shp";
+            openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName,
+                Filter = "Shapefiles (*.shp)|*.shp"
+            };
+            saveFileDialog = new SaveFileDialog
+            {
+                InitialDirectory = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).FullName,
+                Filter = "Shapefiles (*.shp)|*.shp"
+            };
 
-            List<GMapProvider> choosableMapProviders = new List<GMapProvider>();
-            choosableMapProviders.Add(GMapProviders.OpenStreetMap);
-            choosableMapProviders.Add(GMapProviders.GoogleMap);
-            choosableMapProviders.Add(GMapProviders.GoogleHybridMap);
-            choosableMapProviders.Add(GMapProviders.GoogleSatelliteMap);
-            choosableMapProviders.Add(GMapProviders.GoogleTerrainMap);
+            List<GMapProvider> choosableMapProviders = new List<GMapProvider>
+            {
+                GMapProviders.OpenStreetMap,
+                GMapProviders.GoogleMap,
+                GMapProviders.GoogleHybridMap,
+                GMapProviders.GoogleSatelliteMap,
+                GMapProviders.GoogleTerrainMap
+            };
             mapSettings.Providers = choosableMapProviders;
 
             map.EmptyMapBackground = new SolidColorBrush(Colors.Black);
             map.DragButton = MouseButton.Left;
+            map.ShowCenter = false;
             //map.Position = BMECoordinates;
             map.Position = new PointLatLng(0, 0);
-            map.ShowCenter = false;
             //map.Zoom = 18;
             map.Zoom = 2;
 
             Layers = new ObservableCollection<Layer>();
 
             DataContext = this;
-            
-            mapCanvas = new MapCanvas(map);
-            mapCanvas.Layers = Layers;
+
+            mapCanvas = new MapCanvas(map)
+            {
+                Layers = Layers
+            };
             map.Markers.Add(mapCanvas.Marker);
 
-            Closed += delegate (object o, EventArgs e) { consoleRedirectWriter.Release(); };  //sets releases console when window closes.
+            Closed += delegate (object o, EventArgs e) { consoleRedirectWriter.Release(); };
         }
-
-        ConsoleRedirectWriter consoleRedirectWriter = new ConsoleRedirectWriter();
+        
+        MapCanvas mapCanvas;
+        public ObservableCollection<Layer> Layers { get; private set; }
+        OpenFileDialog openFileDialog;
+        SaveFileDialog saveFileDialog;
 
         private void ShowCrosshairEventHandler(object sender, RoutedEventArgs e)
         {
             map.ShowCenter = mapSettings.ShowCrosshair;
             map.InvalidateVisual();
         }
-
+        
         #region Commands
 
         private void CommonCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -179,7 +170,7 @@ namespace ShapefileEditor
                 try
                 {
                     Layer layer = new Layer();
-                    layer.Name = System.IO.Path.GetFileNameWithoutExtension(openFileDialog.SafeFileName);
+                    layer.Name = Path.GetFileNameWithoutExtension(openFileDialog.SafeFileName);
                     layer.FileName = openFileDialog.FileName;
                     using (var dataReader = new ShapefileDataReader(openFileDialog.FileName, new GeometryFactory()))
                     {
@@ -218,7 +209,7 @@ namespace ShapefileEditor
             Layer layerToSave = CollectionViewSource.GetDefaultView(Layers).CurrentItem as Layer;
             if (layerToSave.FileName != "")
             {
-                saveFileDialog.FileName = System.IO.Path.GetFileNameWithoutExtension(layerToSave.FileName);
+                saveFileDialog.FileName = Path.GetFileNameWithoutExtension(layerToSave.FileName);
                 saveFileDialog.InitialDirectory = layerToSave.FileName;
 
             }
@@ -241,14 +232,10 @@ namespace ShapefileEditor
                         features.Add(new Feature(item.Geometry, new AttributesTable(dictionary)));
                     }
 
-                    string baseFileName = name;
-
-                    //string shpFilePath = baseFileName + ".shp";string dbfFilePath = baseFileName + ".dbf";string shxFilePath = baseFileName + ".shx";
-                    //var reg = new ShapefileStreamProviderRegistry(shapeStream: new FileStreamProvider(StreamTypes.Shape, shpFilePath),dataStream: new FileStreamProvider(StreamTypes.Data, dbfFilePath),
-                    //    indexStream: new FileStreamProvider(StreamTypes.Index, shxFilePath),validateShapeProvider: true,validateDataProvider: true,validateIndexProvider: true);
-                    //ShapefileDataWriter wr = new ShapefileDataWriter(reg, GeometryFactory.Default, CodePagesEncodingProvider.Instance.GetEncoding(1252));
-                    ShapefileDataWriter writer = new ShapefileDataWriter(baseFileName, GeometryFactory.Default);
-                    writer.Header = layerToSave.Header;
+                    ShapefileDataWriter writer = new ShapefileDataWriter(name, GeometryFactory.Default)
+                    {
+                        Header = layerToSave.Header
+                    };
                     writer.Write(features);
                 }
                 catch (Exception ex)
@@ -287,17 +274,13 @@ namespace ShapefileEditor
             switch ((string)e.Parameter)
             {
                 case "layer":
-                    MessageBoxResult dialogResult = MessageBox.Show("Are you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (dialogResult == MessageBoxResult.Yes)
-                    {
+                    if (MessageBox.Show("Are you sure you want to delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                         Layers.Remove((Layer)CollectionViewSource.GetDefaultView(Layers).CurrentItem);
-                    }
                     break;
                 case "field":
                     currentLayer = (Layer)CollectionViewSource.GetDefaultView(Layers)?.CurrentItem;
                     int currentIndex = CollectionViewSource.GetDefaultView(currentLayer.Attributes).CurrentPosition;
                     DbaseFieldDescriptor descriptor = currentLayer.Attributes[currentIndex];
-                    Console.WriteLine(descriptor.Name);
                     currentLayer.Header.RemoveColumn(descriptor.Name);
                     currentLayer.Attributes.RemoveAt(currentIndex);
                     foreach (ShapefileShape shape in currentLayer.Shapes)
@@ -315,14 +298,74 @@ namespace ShapefileEditor
         }
         #endregion Delete command
 
+        #region MoveDown command
+        private void MoveDownCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    e.CanExecute = CollectionViewSource.GetDefaultView(Layers).CurrentPosition < Layers.Count - 1;
+                    break;
+                default:
+                    e.CanExecute = false;
+                    break;
+            }
+        }
+        private void MoveDownCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
+                    if (currentPosition < Layers.Count - 1)
+                        Layers.Move(currentPosition, currentPosition + 1);
+                    break;
+                default:
+                    break;
+            }
+        }
+        #endregion MoveDown command
+
+        #region MoveUp command
+        private void MoveUpCommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    e.CanExecute = CollectionViewSource.GetDefaultView(Layers).CurrentPosition > 0;
+                break;
+                default:
+                        e.CanExecute = false;
+                break;
+            }
+        }
+        private void MoveUpCommandBinding_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            switch ((string)e.Parameter)
+            {
+                case "layer":
+                    int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
+                    if (currentPosition > 0)
+                        Layers.Move(currentPosition, currentPosition - 1);
+                    break;
+                default:
+                    break;
+            }
+        }
+        #endregion MoveUp command
+
         #endregion Commands
+        
+        #region Console output redirection
+
+        ConsoleRedirectWriter consoleRedirectWriter = new ConsoleRedirectWriter();
 
         private void textBoxMessages_TextChanged(object sender, TextChangedEventArgs e)
         {
             textBoxMessages.ScrollToEnd();
         }
 
-        String LastConsoleString;
+        string LastConsoleString;
         private void textBoxMessages_Initialized(object sender, EventArgs e)
         {
             // Use this for thread safe objects or UIElements in a single thread program
@@ -343,133 +386,6 @@ namespace ShapefileEditor
                 };
         }
 
-        private void btnMoveLayerUp_Click(object sender, RoutedEventArgs e)
-        {
-            int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
-            if (currentPosition > 0)
-                Layers.Move(currentPosition, currentPosition - 1);
-        }
-
-        private void btnMoveLayerDown_Click(object sender, RoutedEventArgs e)
-        {
-            int currentPosition = CollectionViewSource.GetDefaultView(Layers).CurrentPosition;
-            if (currentPosition < Layers.Count - 1)
-                Layers.Move(currentPosition, currentPosition + 1);
-        }
-    }
-
-
-
-    public class SolidColorBrushToColorValueConverter : IValueConverter
-    {
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (null == value)
-            {
-                return null;
-            }
-            if (value is Color)
-            {
-                Color color = (Color)value;
-                return new SolidColorBrush(color);
-            }
-
-            Type type = value.GetType();
-            throw new InvalidOperationException("Unsupported type [" + type.Name + "]");
-        }
-
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value == null)
-            {
-                return null;
-            }
-            if (value is SolidColorBrush)
-            {
-                SolidColorBrush brush = (SolidColorBrush)value;
-                return brush.Color;
-            }
-
-            Type type = value.GetType();
-            throw new InvalidOperationException("Unsupported type [" + type.Name + "]");
-        }
-    }
-
-    public class DecimalToDoubleConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value is double)
-            return (decimal)(double)value;
-            if (value is int)
-                return (decimal)(int)value;
-            return value;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value is decimal)
-            {
-                //if (targetType == typeof(Int32))
-                //    return (int)(decimal)value;
-                //if (targetType == typeof(Double))
-                    return (double)(decimal)value;
-                //return value;
-            }
-            return value;
-        }
-    }
-
-    public class DecimalCountToIncrementValueConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value == null)
-                return null;
-            if (value is int)
-                return (decimal)Math.Pow(0.1, (int)value);
-
-            Type type = value.GetType();
-            throw new InvalidOperationException("Unsupported type [" + type.Name + "]");
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value == null)
-                return null;
-            if (value is decimal)
-                return -Math.Log10((double)value);
-
-            Type type = value.GetType();
-            throw new InvalidOperationException("Unsupported type [" + type.Name + "]");
-        }
-    }
-
-    public class FieldMinMaxValueConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (targetType == typeof(Decimal))
-            {
-                if (value == null || parameter == null)
-                    return null;
-                if (value is DbaseFieldDescriptor)
-                    if (parameter is string)
-                    {
-                        DbaseFieldDescriptor descriptor = (DbaseFieldDescriptor)value;
-                        string param = ((string)parameter).ToLower();
-                        if (param == "min")
-                            return (decimal)((1 - Math.Pow(10, descriptor.Length - 1)) * Math.Pow(0.1, descriptor.DecimalCount));
-                        else if (param == "max")
-                            return (decimal)((Math.Pow(10, descriptor.Length) - 1) * Math.Pow(0.1, descriptor.DecimalCount));
-                    }
-            }
-            return value;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new InvalidOperationException();
-        }
+        #endregion Console output redirection
     }
 }

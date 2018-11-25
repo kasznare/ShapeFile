@@ -145,8 +145,13 @@
     <Compile Include="Controls\EditorMap\CanvasShape.xaml.cs">
       <DependentUpon>CanvasShape.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\EditorMap\InsertThumb.cs" />
+    <Compile Include="Controls\EditorMap\MoveThumb.cs" />
     <Compile Include="Controls\Utilities\AsciiTextBox.cs" />
-    <Compile Include="NewLayerDialog.xaml.cs">
+    <Compile Include="Utilities\DecimalCountToIncrementValueConverter.cs" />
+    <Compile Include="Utilities\DecimalToDoubleConverter.cs" />
+    <Compile Include="Utilities\FieldMinMaxValueConverter.cs" />
+    <Compile Include="Controls\NewLayerDialog.xaml.cs">
       <DependentUpon>NewLayerDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -154,6 +159,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\SolidColorBrushToColorValueConverter.cs" />
     <Compile Include="Utilities\GMapPathGeometryWriter.cs" />
     <Compile Include="Controls\EditorMap\Map.cs" />
     <Compile Include="Controls\EditorMap\MapSettings.xaml.cs">
@@ -166,7 +172,7 @@
     <Compile Include="Utilities\RedirectWriter.cs" />
     <Compile Include="ShapefileViewModel.cs" />
     <Compile Include="Themes\Themes.cs" />
-    <Compile Include="Controls\TriangleToggleButton.xaml.cs">
+    <Compile Include="Controls\Utilities\TriangleToggleButton.xaml.cs">
       <DependentUpon>TriangleToggleButton.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\GMapGeometryReader.cs" />
@@ -194,7 +200,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NewLayerDialog.xaml">
+    <Page Include="Controls\NewLayerDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -278,7 +284,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\TriangleToggleButton.xaml">
+    <Page Include="Controls\Utilities\TriangleToggleButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -348,6 +354,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\disabled\plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\disabled\shape_move_backwards.png" />
+    <Resource Include="Icons\disabled\shape_move_forwards.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.109.2\build\net46\System.Data.SQLite.Core.targets')" />

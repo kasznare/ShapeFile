@@ -1,19 +1,9 @@
 ﻿using GeoAPI.Geometries;
 using GMap.NET;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ShapefileEditor
 {
@@ -24,6 +14,7 @@ namespace ShapefileEditor
     {
         private static GMapPathGeometryWriter pathGeometryWriter = new GMapPathGeometryWriter();
         private static GMapGeometryReader geometryReader = new GMapGeometryReader(new NetTopologySuite.Geometries.GeometryFactory());
+
 
         public CanvasShape()
         {
@@ -40,8 +31,11 @@ namespace ShapefileEditor
 
 
         private bool creatingNewShape = false;
-
+        private bool isCommiting = false;
         private PathGeometry geoPathGeometry;
+
+
+        #region Dependency properties
 
         public PathGeometry DisplayGeometry
         {
@@ -57,32 +51,6 @@ namespace ShapefileEditor
         }
         public static readonly DependencyProperty MapProperty = DependencyProperty.Register("Map", typeof(Map), typeof(CanvasShape), new PropertyMetadata(new PropertyChangedCallback(MapChanged)));
 
-        private static void MapChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            CanvasShape cs = ((CanvasShape)d);
-            if (cs.creatingNewShape)
-            {
-                Map map = (Map)e.NewValue;
-                RectLatLng viewArea = map.ViewArea;
-                switch (cs.ShapeType)
-                {
-                    case AllowedShapeType.Point:
-                        //cs.Geometry = geometryReader.Read(new PathGeometry();
-                        break;
-                    case AllowedShapeType.Line:
-                        Point left = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.4);
-                        Point right = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.6);
-                        cs.Geometry = geometryReader.Read(new LineGeometry(left, right));
-                        break;
-                    case AllowedShapeType.Polygon:
-                        Point topLeft = new Point(viewArea.Lat - viewArea.HeightLat * 0.6, viewArea.Lng + viewArea.WidthLng * 0.4);
-                        Size size = new Size(viewArea.HeightLat * 0.2, viewArea.WidthLng * 0.2);
-                        cs.Geometry = geometryReader.Read(new RectangleGeometry(new Rect(topLeft, size)));
-                        break;
-                }
-                cs.DisplayGeometry.Transform = cs.Transform;
-            }
-        }
         
         public AllowedShapeType ShapeType
         {
@@ -90,11 +58,7 @@ namespace ShapefileEditor
             set { SetValue(ShapeTypeProperty, value); }
         }
         public static readonly DependencyProperty ShapeTypeProperty = DependencyProperty.Register("ShapeType", typeof(AllowedShapeType), typeof(CanvasShape), new PropertyMetadata(AllowedShapeType.Line));
-
-
-
-        private bool isCommiting = false;
-
+        
         public IGeometry Geometry
         {
             get { return (IGeometry)GetValue(GeometryProperty); }
@@ -117,10 +81,7 @@ namespace ShapefileEditor
         private static void GeometryPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue == null)
-            {
-                Console.WriteLine("null");
                 return;
-            }
             CanvasShape cs = ((CanvasShape)d);
             if (!cs.isCommiting)
             {
@@ -151,7 +112,9 @@ namespace ShapefileEditor
         }
         public static readonly DependencyProperty LayerProperty = DependencyProperty.Register("Layer", typeof(Layer), typeof(CanvasShape), new PropertyMetadata(null));
 
-
+        #endregion Dependency properties
+        
+        #region Coordinate transforms
 
         private static double deg2Rad = Math.PI / 180.0;
         private static double inv4PI = 0.25 / Math.PI;
@@ -174,6 +137,37 @@ namespace ShapefileEditor
             return new Point(
                 (Math.Atan(Math.Exp((128.0 - canvasMercator.Y) * invYFactor)) - piOver4) * rad2DegTimes2, 
                 canvasMercator.X * invXFactor - 180.0);
+        }
+
+        #endregion Coordinate transforms
+
+        #region Geometry manipulation
+
+        private static void MapChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            CanvasShape cs = ((CanvasShape)d);
+            if (cs.creatingNewShape)
+            {
+                Map map = (Map)e.NewValue;
+                RectLatLng viewArea = map.ViewArea;
+                switch (cs.ShapeType)
+                {
+                    case AllowedShapeType.Point:
+                        //cs.Geometry = geometryReader.Read(new PathGeometry();
+                        break;
+                    case AllowedShapeType.Line:
+                        Point left = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.4);
+                        Point right = new Point(viewArea.Lat - viewArea.HeightLat * 0.5, viewArea.Lng + viewArea.WidthLng * 0.6);
+                        cs.Geometry = geometryReader.Read(new LineGeometry(left, right));
+                        break;
+                    case AllowedShapeType.Polygon:
+                        Point topLeft = new Point(viewArea.Lat - viewArea.HeightLat * 0.6, viewArea.Lng + viewArea.WidthLng * 0.4);
+                        Size size = new Size(viewArea.HeightLat * 0.2, viewArea.WidthLng * 0.2);
+                        cs.Geometry = geometryReader.Read(new RectangleGeometry(new Rect(topLeft, size)));
+                        break;
+                }
+                cs.DisplayGeometry.Transform = cs.Transform;
+            }
         }
 
         public void RebuildShape()
@@ -221,5 +215,7 @@ namespace ShapefileEditor
             Geometry = geometryReader.Read(geoPathGeometry);
             isCommiting = false;
         }
+
+        #endregion Geometry manipulation
     }
 }

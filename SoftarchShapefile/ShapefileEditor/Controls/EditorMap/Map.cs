@@ -76,9 +76,7 @@ namespace ShapefileEditor
             private set { SetValue(InverseScaleProperty, value); }
         }
 
-
-
-
+        
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseUp(e);
@@ -86,6 +84,7 @@ namespace ShapefileEditor
         }
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
+            //Intentionally handled in OnPreviewMouseUp.
         }
     }
 
@@ -114,7 +113,6 @@ namespace ShapefileEditor
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            //return (int)Math.Log((double)value / 0.00001, 2);
             return DependencyProperty.UnsetValue;
         }
     }

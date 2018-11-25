@@ -22,6 +22,8 @@
         <CommandBinding Command="Open" Executed="OpenCommandBinding_Executed" CanExecute="OpenCommandBinding_CanExecute" />
         <CommandBinding Command="Save" Executed="SaveCommandBinding_Executed" CanExecute="SaveCommandBinding_CanExecute" />
         <CommandBinding Command="Delete" Executed="DeleteCommandBinding_Executed" CanExecute="DeleteCommandBinding_CanExecute" />
+        <CommandBinding Command="MoveUp" Executed="MoveUpCommandBinding_Executed" CanExecute="MoveUpCommandBinding_CanExecute"/>
+        <CommandBinding Command="MoveDown" Executed="MoveDownCommandBinding_Executed" CanExecute="MoveDownCommandBinding_CanExecute"/>
     </Window.CommandBindings>
 
     <Window.InputBindings>
@@ -38,8 +40,17 @@
                 <MenuItem Header="_Save Layer" Command="Save"/>
                 <MenuItem Header="_Remove Layer"  Command="Delete" CommandParameter="layer"/>
             </MenuItem>
+            <MenuItem Header="_Layer">
+                <MenuItem Header="Move _Backwards" Command="MoveUp" CommandParameter="layer"/>
+                <MenuItem Header="Move _Forwards" Command="MoveDown" CommandParameter="layer"/>
+                <MenuItem Header="_Remove Layer"  Command="Delete" CommandParameter="layer"/>
+            </MenuItem>
+            <MenuItem Header="_Shape">
+                <MenuItem Header="_Add Shape" Command="New" CommandParameter="shape"/>
+                <MenuItem Header="_Delete Shape" Command="Delete" CommandParameter="shape"/>
+            </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="_About" />
+                <MenuItem Header="_About" IsEnabled="False"/>
             </MenuItem>
         </Menu>
         <StatusBar DockPanel.Dock="Bottom" Background="#FF007ACC" Foreground="White">
@@ -322,11 +333,33 @@
                                 </Image>
                             </Button>
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-                            <Button x:Name="btnMoveLayerUp" ToolTip="Move selected layer backwards." Focusable="False" Click="btnMoveLayerUp_Click">
-                                <Image Source="Icons/shape_move_backwards.png"/>
+                            <Button x:Name="btnMoveLayerUp" ToolTip="Move selected layer backwards." Focusable="False" Command="MoveUp" CommandParameter="layer">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/shape_move_backwards.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/shape_move_backwards.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                             </Button>
-                            <Button x:Name="btnMoveLayerDown" ToolTip="Move selected layer forwards." Focusable="False" Click="btnMoveLayerDown_Click">
-                                <Image Source="Icons/shape_move_forwards.png"/>
+                            <Button x:Name="btnMoveLayerDown" ToolTip="Move selected layer forwards." Focusable="False" Command="MoveDown" CommandParameter="layer">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/shape_move_forwards.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/shape_move_forwards.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
                             </Button>
                         </ToolBar>
                     </StackPanel>
@@ -377,7 +410,7 @@
                                 </Setter>
                             </Style>
                         </ListBox.Resources>
-                        
+
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid HorizontalAlignment="Stretch" Margin="0">
@@ -517,49 +550,6 @@
                 </ContentControl>
             </dz:DockItem>
 
-            <dz:DockItem x:Name="diMap" TabText="Map" Title="Map" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
-                <DockPanel >
-                    <StackPanel DockPanel.Dock="Top" Background="#FFEEEEF2">
-                        <ToolBar ToolBarTray.IsLocked="True" Background="{x:Null}">
-                            <Button ToolTip="Add new shape." Command="New" CommandParameter="shape" Focusable="False">
-                                <Image Width="16" Height="16">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Source" Value="Icons/plus.png"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
-                                                    <Setter Property="Source" Value="Icons/disabled/plus.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                            </Button>
-                            <Button ToolTip="Delete selected shape." Focusable="False" Command="Delete" CommandParameter="shape">
-                                <Image Width="16" Height="16">
-                                    <Image.Style>
-                                        <Style TargetType="Image">
-                                            <Setter Property="Source" Value="Icons/cross.png"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
-                                                    <Setter Property="Source" Value="Icons/disabled/cross.png" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Image.Style>
-                                </Image>
-                            </Button>
-                        </ToolBar>
-                    </StackPanel>
-                    <Grid>
-                        <local:Map x:Name="map" Zoom="15" MaxZoom="18" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
-                        <local:MapSettings x:Name="mapSettings" 
-                                       SelectedProvider="{Binding ElementName=map, Path=MapProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       ShowCrosshairChangedEvent="ShowCrosshairEventHandler"/>
-                    </Grid>
-                </DockPanel>
-            </dz:DockItem>
-
             <dz:DockItem x:Name="diLayerProperties" TabText="Layer Properties" Title="Layer Properties" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
                 <Grid Background="WhiteSmoke">
                     <Grid.ColumnDefinitions>
@@ -679,8 +669,6 @@
                                 </Style>
                             </ListView.Style>
                         </ListView>
-                        <!--</Grid>-->
-                        <!--</Border>-->
                         <StackPanel Grid.Row="1" Margin="4">
                             <WrapPanel Orientation="Horizontal">
                                 <StackPanel Orientation="Vertical" Margin="0,0,10,0">
@@ -758,11 +746,53 @@
                             </WrapPanel>
                         </StackPanel>
                     </Grid>
-
                 </Grid>
             </dz:DockItem>
 
-            <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}">
+            <dz:DockItem x:Name="diMap" TabText="Map" Title="Map" ShowAction="{dz:ShowAsDockPositionAction DockPosition=Document}">
+                <DockPanel >
+                    <StackPanel DockPanel.Dock="Top" Background="#FFEEEEF2">
+                        <ToolBar ToolBarTray.IsLocked="True" Background="{x:Null}">
+                            <Button ToolTip="Add new shape." Command="New" CommandParameter="shape" Focusable="False">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/plus.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/plus.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                            <Button ToolTip="Delete selected shape." Focusable="False" Command="Delete" CommandParameter="shape">
+                                <Image Width="16" Height="16">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Source" Value="Icons/cross.png"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=IsEnabled}" Value="False">
+                                                    <Setter Property="Source" Value="Icons/disabled/cross.png" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Button>
+                        </ToolBar>
+                    </StackPanel>
+                    <Grid>
+                        <local:Map x:Name="map" Zoom="15" MaxZoom="18" MinZoom="1" MouseWheelZoomType="MousePositionWithoutCenter" SnapsToDevicePixels="True"/>
+                        <local:MapSettings x:Name="mapSettings" 
+                                       SelectedProvider="{Binding ElementName=map, Path=MapProvider, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       ShowCrosshairChangedEvent="ShowCrosshairEventHandler"/>
+                    </Grid>
+                </DockPanel>
+            </dz:DockItem>
+
+            <dz:DockItem x:Name="diMessages" TabText="Messages" Title="Messages"  ><!--ShowAction="{dz:ShowAsDockPositionAction DockPosition=Bottom}"-->
                 <TextBox x:Name="textBoxMessages" IsReadOnly="True" IsUndoEnabled="False" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="textBoxMessages_TextChanged" BorderBrush="{x:Null}" BorderThickness="0" Initialized="textBoxMessages_Initialized"/>
             </dz:DockItem>
 
