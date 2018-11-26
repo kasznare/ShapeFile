@@ -256,5 +256,9 @@ namespace ShapefileEditor
         }
 
         #endregion Thumb handling
+
+
+
+
     }
 }

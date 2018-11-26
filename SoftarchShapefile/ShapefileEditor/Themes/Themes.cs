@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace ShapefileEditor
 {
@@ -18,7 +20,9 @@ namespace ShapefileEditor
         public static void Load(Uri themeSource)
         {
             Reset();
+#if DEBUG
             Debug.Assert(s_currentTheme == null);
+#endif
             s_currentTheme = new ResourceDictionary();
             s_currentTheme.Source = themeSource;
             Application.Current.Resources.MergedDictionaries.Add(s_currentTheme);

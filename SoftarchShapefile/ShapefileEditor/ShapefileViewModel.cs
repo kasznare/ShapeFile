@@ -133,18 +133,6 @@ namespace ShapefileEditor
     }
 
     
-    public class ShapefileCollectionContainer : CollectionContainer
-    {
-        public ShapefileCollectionContainer(string name, IEnumerable coll)
-        {
-            Name = name;
-            Collection = coll;
-        }
-
-        public string Name { get; private set; }
-    }
-
-    
     public class ShapefileShape : DependencyObject
     {
         public ShapefileShape(AllowedShapeType shapeType)
